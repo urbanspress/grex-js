@@ -1,40 +1,53 @@
 # Grex JS Engineering Instructions
 
-**Grex JS** is the lightweight reactive frontend runtime and zero-wrapper-div native UI element library for **GRAB** and **Grisp**.
+**Grex JS** is the lightweight reactive frontend runtime and zero-wrapper-div native UI element library powering **Grex Builder**, **GrabLab CMS**, and **Groxy AI** on top of **GRAB** and **Grisp**.
 
 ## Architecture & Scope
-- **Frontend Layer Only:** `grex-js` owns client-side reactive signals, fine-grained DOM updates, semantic UI elements, responsive design tokens, and the split-screen preview bridge. Server-side language features, Grisp HTTP/worker internals, and `grab mcp` live in `urbanspress/grab.in.the.making`.
+- **Frontend Layer Only:** `grex-js` owns client-side reactive signals, fine-grained DOM updates, semantic UI elements, responsive `--grex-*` design tokens, and the split-screen `GrexPreviewBridge`. Server-side GRAB language features, Grisp HTTP/worker internals, and `grab mcp` live in `urbanspress/grab.in.the.making`.
 - **Zero Wrapper-Div Bloat:** Every Grex element renders directly to its clean, semantic HTML5 tag (`<section>`, `<header>`, `<nav>`, `<article>`, `<button>`, etc.) without extra wrapper `<div>` layers.
-- **Zero-`eval` & CSP-Safe:** Never use `eval()`, `new Function()`, or unsafe `innerHTML` injection with untrusted data. Bind text via `textContent` and sanitize/validate attributes strictly.
+- **Strict CSP & XSS Safety (`ADR-014`, `ADR-017`):** Never use `eval()`, `new Function()`, or unsafe `innerHTML`. Bind text via `textContent`, block `javascript:`/`data:` URLs, forbid inline `on*` handlers, and validate `postMessage` origins in `GrexPreviewBridge`.
+- **Exact GRAB Value Integrity (`ADR-025c`):** Never coerce GRAB base-10 `GrabInteger` / `GrabDecimal` wire strings (e.g., `"19.95"`) into imprecise IEEE-754 floating-point numbers when rendering or formatting values.
 - **Zero Build-Step Runtime Core:** Keep the browser runtime dependency-free, tiny, and deterministic so it serves cleanly as static assets via Grisp.
 
 ## Fluid Grisp / Docker Sync Rules
 All `grex-js` rendering, previewing, and publishing workflows MUST respect these three sync boundaries:
-1. **Split-Screen Live Preview:** Instant browser-side `Grex JS` reactive signals & CSS custom properties with zero server restarts.
+1. **Split-Screen Live Preview:** Instant browser-side `Grex JS` reactive signals & `--grex-*` CSS custom properties with zero Grisp restarts.
 2. **Instant Publish Content:** Structured element JSON persisted via GRAB `use data` + `use cache` invalidation (zero Grisp restarts).
-3. **Instant Publish Styles:** Compiled CSS written strictly to a dedicated `/static/grex/` mount (compatible with `--read-only` Docker containers and Grisp `--reload`) and fingerprinted via GRAB `server.asset` `?v=<hash>`.
+3. **Instant Publish Styles:** Compiled CSS written strictly to a dedicated `/static/grex/` mount (compatible with `--read-only` Docker containers and Grisp `--reload`) and fingerprinted via GRAB `server.asset` (`?v=<12-char-sha256>` with smart `Cache-Control` per `ADR-027b`).
 
-## Workflow & Security Hygiene
-- **No Secrets or Infrastructure Details:** Never commit VPS IP addresses, usernames, SSH keys, or production credentials into any file in this repository.
-- **Inspect Before Editing:** Read existing specifications, modules, and tests before making changes.
+## Workflow & User Communication
+- **Inspect Before Editing:** Read `GREX-EXPERT.md`, relevant specifications, modules, and tests before making changes.
 - **Small, Reviewable Changes:** Keep diffs focused and modular.
 - **Plain-English Communication:** The project owner is a non-coder directing development in plain English. Always explain changes, errors, and design choices simply.
+- **Direct Execution:** Handle all file edits and terminal commands directly; do not ask the project owner to perform routine coding or command-line work.
+- **No Secrets or Infrastructure Details:** Never commit VPS IP addresses, usernames, SSH keys, or production credentials into any file in this repository.
 - **No Unapproved Commits/Pushes:** Do not commit, push, or publish releases without explicit owner approval.
 
-## Mandatory Test Completion Gate
-- NEVER mark an implementation task complete or ask for release approval until automated unit, DOM, and integration tests covering the new feature or bug fix pass 100%.
+## Pre-Implementation Spec Approval & Test Gates
+- **Pre-Implementation Specification Gate:** Never write runtime implementation code for a new milestone until its specification in `specifications/` is reviewed and explicitly approved by the project owner.
+- **Mandatory Test Completion Gate:** NEVER mark an implementation task complete or ask for release approval until automated unit, DOM, security, and integration tests covering the new feature or bug fix pass 100%.
 
-## Tiered Model Routing
-- **Tier 1 — Frontier Models (`Gemini 4 Hydrogen`, `Gemini 4 Argon`, `Claude Opus/Sonnet`, `GPT-6.1 Sol`):**
-  - Authorized to draft specifications, design reactive primitives, and execute multi-module refactors across `grex-js`.
-- **Tier 2 — Fast Workhorse Models (`Gemini 3.8 Flash`, `OpenCode`, `Cline`, `Kilo Code`):**
-  - Must operate in **Strict Single-Module Mode**: scope edits to one module/element at a time and run the module's test suite immediately after each edit.
+## Release Protection & Plain-English Release Assets
+- **Milestone Release Gate:** Never tag or publish a release until the milestone is 100% `Complete` in `docs/ROADMAP.md`, all automated unit/DOM/security/integration tests pass 100%, and `HANDOFF.md` records no pending milestone tasks.
+- **Plain-English Walkthrough PDF & Release Assets:** Every milestone release promotion (`v0.1.0`, `v0.2.0`, ..., `v1.0.0`) MUST generate a plain-English walkthrough PDF (`docs/releases/pdf/GREX-JS-<tag>-Guide.pdf`) alongside the clean browser-ready static runtime bundle (`grex-js-<tag>.min.js` / `grex-tokens-<tag>.css` as applicable) and attach them to the **Assets** section of the GitHub Release (`gh release upload --clobber --repo urbanspress/grex-js`).
 
 ## Tandem Handoff Protocol
-- **Google Antigravity -> Codex:** If Google Antigravity fails to resolve an issue or pass tests after 2 attempts, revert only its failed edits, log the attempt in `HANDOFF.md`, update `Current Owner: OpenAI Codex`, and say: `"Ready to hand off to Codex. Type use-codex to continue."`
-- **Codex -> Google Antigravity:** When Codex finishes a task, update `HANDOFF.md`, set `Current Owner: Google Antigravity`, and say: `"Core task complete—ready to hand off to Google Antigravity. Type use-antigravity to continue."`
+- **Google Antigravity -> OpenAI Codex:** If Google Antigravity fails to resolve an issue or pass tests after 2 attempts, or encounters complex spec/architecture work, it must stop editing and revert only the specific files it edited during that failed attempt (stopping to ask the owner if pre-existing uncommitted work would be affected), log what it tried in `HANDOFF.md`, update `Current Owner: OpenAI Codex`, and say: `"Ready to hand off to Codex. Type use-codex to continue."`
+- **OpenAI Codex -> Google Antigravity:** When Codex finishes a task, it must update `HANDOFF.md`, set `Current Owner: Google Antigravity`, and say: `"Core task complete—ready to hand off to Google Antigravity. Type use-antigravity to continue."`
+- **Automatic Pickup:** Whenever either agent starts via `use-antigravity` or `use-codex`, it must immediately read `AGENTS.md`, `GREX-EXPERT.md`, and `HANDOFF.md`, run the test suite to confirm a clean baseline, and begin the next pending task without unnecessary setup questions.
 
 ### Internal Antigravity Model Guidance
-- Recommend **Gemini 3.8 Flash (High)** for straightforward element tests, docs, and small fixes.
-- Recommend **Gemini 4 Argon (Medium)** for roadmap updates and specification refinements.
-- Recommend **Gemini 4 Hydrogen (Medium/High)** or **Opus 5.5 (High)** for core reactive engine, DOM reconciliation, and security-critical escaping work.
+- Before ending a turn or starting a new phase, advise the project owner which Antigravity model and effort level to select for the next step:
+  - Recommend **Gemini 3.8 Flash (High)** for straightforward element tests, documentation updates, and small single-module fixes.
+  - Recommend **Gemini 4 Argon (Medium)** for roadmap updates, feature guides, and specification refinements.
+  - Recommend **Gemini 4 Hydrogen (Medium/High)** or **Opus 5.5 (High)** for core reactive engine, DOM reconciliation, and security-critical escaping work.
+  - If an issue remains unresolved after 2 attempts on a Tier 1 model, trigger the **Tandem Handoff Protocol** and hand off to **OpenAI Codex**.
+
+## Tiered Model Routing
+- **Tier 1 — Frontier Models (`Google Hydrogen`, `Gemini 4 Argon`, `GPT-6.1 Sol`, `Claude Opus/Sonnet`):**
+  - Authorized to draft specifications, design reactive primitives, and execute multi-module refactors across `grex-js` using `GREX-EXPERT.md`, spec approval gates, and full test verification.
+- **Tier 2 — Fast Workhorse & Backup Models (`Gemini 3.8 Flash`, `OpenCode`, `Cline`, `Kilo Code`):**
+  - Must operate in **Strict Single-Module Mode** for all code changes:
+    1. **Read `GREX-EXPERT.md` first** before making any code edit.
+    2. **Scope edits to one module or UI element at a time** instead of multi-module mega-edits.
+    3. **Verify immediately after every edit:** run the module's test suite immediately after each edit before moving to the next module.

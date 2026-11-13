@@ -4,38 +4,70 @@
 
 ---
 
-## `v0.1` — Core Reactive Signals & DOM Engine
-**Status:** Draft Specification (`specifications/GREX-JS-SPEC-001.md` — Awaiting Owner Review)
+## `v0.1` — Core Reactive Signals, Semantic DOM Engine & Preview Bridge
+**Status:** Specification Ready for Approval ([`specifications/GREX-JS-SPEC-001.md`](../specifications/GREX-JS-SPEC-001.md))
 
-- **Fine-Grained Reactive Signals:** `signal`, `computed`, `effect`, and `batch` primitives with automatic dependency tracking and deterministic cleanup/disposal.
-- **Zero-Wrapper-Div DOM Engine:** Direct semantic HTML5 element creation and selective hydration without virtual-DOM overhead or extra wrapper `<div>` tags.
-- **Responsive Design Tokens:** CSS custom property (`--grex-*`) token system and breakpoint cascade.
-- **Split-Screen Preview Bridge:** Instant browser-side signal and CSS custom property patching with zero Grisp restarts.
-- **Grisp Asset Integration:** Compatible with `--read-only` Docker containers, dedicated `/static/grex/` CSS mounts, Grisp `--reload`, and `server.asset` `?v=<hash>` cache busting.
+- **Fine-Grained Reactive Signals:** `signal`, `computed`, `effect`, and `batch` primitives with automatic dependency tracking, glitch-free diamond-dependency consistency, and deterministic `dispose()` cleanup.
+- **Zero-Wrapper-Div DOM Engine (`ADR-018`):** Direct semantic HTML5 element creation and selective hydration (`data-grex-*` on `.grab.html`) without virtual-DOM overhead or extra wrapper `<div>` tags.
+- **Responsive Design Tokens (`--grex-*`):** CSS custom property token system and `base` / `tablet` / `mobile` breakpoint cascade compiled strictly to `/static/grex/` for `--read-only` Docker containers.
+- **Split-Screen Preview Bridge (`GrexPreviewBridge`):** Origin-validated `postMessage` channel patching live `signal` values and `--grex-*` CSS custom properties in browser memory with zero Grisp restarts.
+- **GRAB 1.0 Integration Contracts:**
+  - `server.asset` (`ADR-027b`): `/static/grex/...?v=<12-char-sha256>` with `Cache-Control: public, max-age=31536000, immutable` on hash match and `no-cache` fallback on rolling reload mismatch.
+  - Strict CSP & XSS Boundaries (`ADR-014`, `ADR-017`): Zero `eval()`/`new Function()`, `textContent`-only text sinks, protocol-checked `href`/`src`, no inline `on*` handlers.
+  - Exact GRAB Value Integrity (`ADR-025c`): Preserve `GrabInteger` / `GrabDecimal` base-10 wire strings (e.g., `"19.95"`) without IEEE-754 float coercion.
+- **Acceptance Criteria:**
+  1. 100% passing unit tests for `signal`, `computed`, `effect`, `batch`, diamond dependencies, and leak-free `dispose()`.
+  2. DOM tests proving exact semantic tag output with zero wrapper `<div>` elements and clean `data-grex-*` selective hydration.
+  3. Security tests blocking XSS payloads (`<script>`, `javascript:`, `data:`, `on*` attributes) and untrusted `GrexPreviewBridge` origins.
+  4. Working example served by Grisp using `server.asset` `?v=<hash>` from `/static/grex/`.
 
 ---
 
-## `v0.2` — Zero-Bloat Layout & Typography Elements
+## `v0.2` — Zero-Bloat Layout, Typography & Media Elements
 **Status:** Planned
 
 - **Semantic Layout Elements:** `Section`, `Container`, `Grid`, `Stack` (Flex), and `Card` rendering clean single-node semantic HTML with CSS Grid/Flexbox tokens.
-- **Typography & Media Elements:** `Heading`, `Text`, `RichText`, `Link`, `Button`, `Image` (responsive `srcset`/lazy loading), and `Icon`.
-- **Per-Breakpoint Style Overrides:** Desktop, Tablet, Mobile, and custom breakpoint token overrides compiled to `/static/grex/` CSS.
+- **Typography & Media Elements:** `Heading`, `Text`, `RichText` (sanitized allowlist), `Link`, `Button`, `Image` (responsive `srcset`/lazy loading), and `Icon`.
+- **Per-Breakpoint Style Overrides:** Desktop, Tablet, Mobile, and custom breakpoint token overrides compiled cleanly to `/static/grex/`.
+- **Acceptance Criteria:**
+  1. Every element renders a single semantic HTML root node with zero wrapper `<div>` bloat.
+  2. Responsive `--grex-*` breakpoint CSS compiles deterministically to `/static/grex/` and passes `server.asset` cache-busting verification.
+  3. Accessibility attributes (`alt`, heading hierarchy, button/link semantics) verified by automated DOM tests.
 
 ---
 
-## `v0.3` — Forms, Repeaters & `grab.api.json` Data Binding
+## `v0.3` — Interactive UI Elements, Forms & `grab.api.json` Data Binding
 **Status:** Planned
 
-- **Interactive UI Elements:** `Form`, `Input`, `Select`, `Tabs`, `Accordion`, `Modal`, and `Nav`.
-- **Dynamic Repeaters & Query Loops:** Keyed list rendering bound to GRAB `grab.api.json` typed contracts and `use data` / `use cache` JSON endpoints.
+- **Interactive UI Elements:** `Form`, `Input`, `Select`, `Tabs`, `Accordion`, `Modal`, and `Nav` with built-in reactive state.
+- **Dynamic Repeaters & Query Loops:** Keyed list rendering bound to GRAB `grab.api.json` typed contracts (`ADR-025c`), `use data`, and `use cache` JSON endpoints.
+- **Exact Wire Format & Same-Origin Safety:** Preserves `GrabInteger` / `GrabDecimal` base-10 wire strings in form inputs, repeaters, and currency displays; uses `AbortSignal` and same-origin CSRF/CORS-safe fetch defaults.
 - **Instant Publish Content:** Structured element JSON persistence with GRAB `use cache` invalidation and zero Grisp restarts.
+- **Acceptance Criteria:**
+  1. Keyed repeaters update, reorder, and dispose item effects cleanly without recreating unchanged DOM nodes.
+  2. `grab.api.json` contract binding tests verify exact decimal string preservation (`"19.95"` stays `"19.95"`) and `AbortSignal` cancellation.
+  3. Interactive components pass keyboard/DOM state tests under strict `script-src 'self'` CSP.
 
 ---
 
-## `v0.4` — Accessibility, Themes & `v1.0.0` Stable Element Schema
+## `v0.4` — Accessibility, Global Theme/Class Manager & `grab mcp` Design Alignment
 **Status:** Planned
 
-- **Accessibility & Focus Management:** Built-in ARIA state management, keyboard navigation, and contrast/focus-ring guardrails aligned with `GRAB-DESIGN-SYSTEM.md`.
-- **Theme & Class Manager:** Reusable design presets and global class tokens.
-- **`v1.0.0` Stable Element Schema:** Versioned JSON element schema locked for **Grex Builder** and **Groxy AI** (`grab mcp` composition).
+- **Accessibility & Focus Management:** Built-in ARIA state management (`aria-expanded`, `aria-selected`, `aria-controls`), keyboard navigation (roving tabindex, Escape/focus trap for `Modal`), and focus-ring guardrails aligned with `GRAB-DESIGN-SYSTEM.md`.
+- **Global Style & Class Manager:** Reusable design presets and Bricks-style class tokens compiled to `/static/grex/`.
+- **AI & CMS Preview Parity:** Clean JSON serialization for **Grex Builder**, **GrabLab CMS**, and **Groxy AI** (`grab mcp`, `ADR-027a`).
+- **Acceptance Criteria:**
+  1. Automated ARIA and keyboard navigation tests pass across `Nav`, `Tabs`, `Accordion`, and `Modal`.
+  2. Global class/token overrides resolve deterministically in both live `GrexPreviewBridge` mode and compiled `/static/grex/` CSS output.
+
+---
+
+## `v1.0.0` — Stable Element Schema, SemVer Freeze & Production Release
+**Status:** Planned
+
+- **Stable `v1.0.0` Element Schema:** Versioned JSON element schema locked for **Grex Builder**, **GrabLab CMS**, and **Groxy AI** (`grab mcp`).
+- **SemVer `v1.x` Stability Freeze:** Public reactive API (`signal`, `computed`, `effect`, `batch`), `data-grex-*` hydration attributes, `--grex-*` token conventions, and `GrexPreviewBridge` message schema frozen for `v1.x`.
+- **Production Release Gates:**
+  1. 100% passing unit, DOM, security/CSP, accessibility, and Grisp `--read-only` Docker + `server.asset` integration tests.
+  2. Zero-dependency minified browser bundle + `/static/grex/` token stylesheet verified with `server.asset` `?v=<12-char-sha256>`.
+  3. Plain-English Walkthrough PDF (`docs/releases/pdf/GREX-JS-v1.0.0-Guide.pdf`) and release assets attached to GitHub Release.

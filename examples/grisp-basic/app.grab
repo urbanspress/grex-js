@@ -1,0 +1,11 @@
+use server
+
+set store_name to "Northbound Goods"
+set base_price to "19.95"
+
+route "GET" "/"
+  set css_url to server.asset using "/static/grex/tokens.css"
+  set app_css_url to server.asset using "/static/grex/app.css"
+  set demo_js_url to server.asset using "/static/grex/demo.js"
+  give back server.html using "page.grab.html", record {title: store_name, price: base_price, css_url: css_url, app_css_url: app_css_url, demo_js_url: demo_js_url}
+end

@@ -2,17 +2,23 @@
 
 **Current Owner:** Google Antigravity
 **Last Updated:** 2026-11-13
-**Current Milestone:** Governance Upgrade & `v0.1` Specification Alignment (`specifications/GREX-JS-SPEC-001.md`)
+**Current Milestone:** `v0.1` Complete (`v0.1.0` Released); Ready for `v0.2` Specification Planning
 
 ## Current Status
-- Cross-audited `C:\Development\GRAB\docs` (`ROADMAP.md`, `features/ecosystem.html`, `adr/ADR-DECISION-REGISTER.md` `ADR-014`/`017`/`018`/`027a`–`d`, and `specifications/GRAB-PLATFORM-SPEC-100.md`).
-- Created `GREX-EXPERT.md` with non-negotiable engineering invariants (zero-bloat semantic DOM, strict CSP/XSS safety, exact GRAB `GrabInteger`/`GrabDecimal` value integrity, fluid Grisp/Docker `/static/grex/` + `server.asset` sync, zero build-step core).
-- Upgraded `AGENTS.md`, `HANDOFF.md`, `docs/ROADMAP.md` (`v0.1` through `v1.0.0`), and `specifications/GREX-JS-SPEC-001.md` to match GRAB's governance, Two-Tier Model Routing, Tandem Handoff Protocol, and Plain-English Release Asset rules.
-- No runtime source code has been written in `src/` yet; awaiting owner review and approval to begin `v0.1` scaffolding.
+- **Grex JS `v0.1.0` Complete & Verified:**
+  - Implemented zero-dependency, zero-`eval()` / zero-`new Function()` ES modules in `src/`:
+    - `src/signals.js`: `signal`, `computed`, `effect` (with deterministic `dispose()` and cleanup callbacks), `batch`, `untrack`, `isExactGrabWireString`, and `formatGrabDecimal` (preserving exact GRAB `GrabInteger`/`GrabDecimal` wire strings without IEEE-754 float coercion).
+    - `src/security.js`: Strict CSP & XSS guards (`assertSafeTag`, `isForbiddenAttribute`, `isSafeUrl` blocking `javascript:`/`data:`/`vbscript:`/`file:`, `sanitizeAttributeValue`, `setSafeText`).
+    - `src/tokens.js`: `--grex-*` responsive CSS token helper & `/static/grex/` compiler (`compileTokenCss`, `applyTokens`, `normalizeTokenName`, `validateTokenValue`).
+    - `src/dom.js`: Zero-wrapper-div semantic HTML5 renderer (`renderElement`), `bindElement`, and in-place selective hydration (`hydrate` via `data-grex-*` attributes).
+    - `src/bridge.js`: Origin-checked split-screen `GrexPreviewBridge` (`createPreviewBridge` with strict `allowedOrigins`, schema checks, and live `patch-signal`/`patch-token`/`patch-attr`/`patch-text`/`batch`).
+    - `src/index.js`: Clean public module entrypoint.
+  - Added automated unit, DOM, security, bundle, and example tests (`tests/*.test.js` — 22/22 passing via `npm test`).
+  - Added runnable Grisp integration example (`examples/grisp-basic/`) verified with `grab check` and live `grab serve --static ... --reload` (`server.asset` `?v=<12-char-sha256>`, `Cache-Control: public, max-age=31536000, immutable` on match, `no-cache` fallback on mismatch).
+  - Built browser-ready static release assets (`dist/grex-js-v0.1.0.js`, `dist/grex-js-v0.1.0.min.js`, `dist/grex-tokens-v0.1.0.css`) via `scripts/build-release-assets.mjs` and plain-English walkthrough PDF (`docs/releases/pdf/GREX-JS-v0.1.0-Guide.pdf`) via `docs/releases/generate_release_guides.py`.
 
 ## Next Pending Task
-1. Owner reviews the governance, roadmap (`v0.1`–`v1.0.0`), and `specifications/GREX-JS-SPEC-001.md` alignment updates.
-2. Upon owner approval, scaffold the `v0.1` runtime (`src/`), automated unit/DOM/security test suite (`tests/`), and initial Grisp `server.asset` + `--reload` example.
+1. Draft `specifications/GREX-JS-SPEC-002.md` for **`v0.2` — Zero-Bloat Layout, Typography & Media Elements** (`Section`, `Container`, `Grid`, `Stack`, `Card`, `Heading`, `Text`, `RichText`, `Link`, `Button`, `Image`, `Icon`, and per-breakpoint overrides) for owner review before writing `v0.2` code.
 
 ## Recommended Model for Next Step
-- **Gemini 4 Hydrogen (Medium/High)** or **Opus 5.5 (High)** for scaffolding the `v0.1` core reactive signals, zero-wrapper-div DOM engine, and security-critical `GrexPreviewBridge`.
+- **Gemini 4 Argon (Medium)** for drafting `specifications/GREX-JS-SPEC-002.md` and updating the `v0.2` design plan.

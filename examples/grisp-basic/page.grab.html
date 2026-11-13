@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{title} — Grex JS v0.1 + Grisp</title>
+  <link rel="stylesheet" href="{css_url}">
+  <link rel="stylesheet" href="{app_css_url}">
+</head>
+<body>
+  <main class="grex-main">
+    <header class="grex-section" data-grex-id="hero-header">
+      <h1 data-grex-id="hero-title" data-grex-text="title">{title}</h1>
+      <p>Zero-wrapper-div semantic HTML hydrated cleanly by Grex JS v0.1.</p>
+    </header>
+
+    <section class="grex-section" data-grex-id="product-section">
+      <article class="grex-card" data-grex-id="featured-card">
+        <h2>Merino Wool Beanie</h2>
+        <p class="grex-price" data-grex-id="product-price" data-grex-text="formattedPrice">${price}</p>
+        <p>Selected quantity: <strong data-grex-id="qty-display" data-grex-text="quantity">1</strong></p>
+        <button type="button" data-grex-id="add-btn" data-grex-on-click="increment">Add Another</button>
+      </article>
+    </section>
+  </main>
+
+  <script type="module" src="{demo_js_url}"></script>
+</body>
+</html>

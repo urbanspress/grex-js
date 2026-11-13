@@ -1,0 +1,40 @@
+/* Base layout styling using --grex-* tokens (zero wrapper divs required) */
+body {
+  margin: 0;
+  font-family: system-ui, -apple-system, sans-serif;
+  background: var(--grex-bg);
+  color: var(--grex-ink);
+}
+
+.grex-main {
+  max-width: var(--grex-max-width);
+  margin: 0 auto;
+  padding: var(--grex-space-md);
+}
+
+.grex-section {
+  padding-block: var(--grex-pad, var(--grex-space-md));
+}
+
+.grex-card {
+  background: var(--grex-surface);
+  border-radius: var(--grex-radius);
+  padding: var(--grex-space-md);
+  border: 1px solid #e2e8f0;
+}
+
+.grex-price {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--grex-accent);
+}
+
+button {
+  background: var(--grex-accent);
+  color: var(--grex-accent-ink);
+  border: 0;
+  border-radius: 8px;
+  padding: 10px 18px;
+  font-weight: 600;
+  cursor: pointer;
+}

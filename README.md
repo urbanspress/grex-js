@@ -1,6 +1,6 @@
 # Grex JS
 
-**Grex JS** is the lightweight reactive frontend runtime and zero-wrapper-div native UI element library for **GRAB** and **Grisp**.
+**Grex JS** is the lightweight reactive frontend runtime and zero-wrapper-div native UI element library powering **Grex Builder**, **GrabLab CMS**, and **Groxy AI** on top of **GRAB** and **Grisp**.
 
 ## How Grex JS Fits Into the GRAB Ecosystem
 
@@ -14,20 +14,34 @@
 ## Design Principles
 
 - **Zero Wrapper-Div Bloat:** Elements render directly to clean semantic HTML5 tags (`<section>`, `<header>`, `<article>`, `<button>`) without nested wrapper `<div>`s.
-- **Fluid Grisp & Docker Sync:**
-  - *Split-Screen Live Preview:* Instant browser-side reactive signals and CSS custom properties with zero server restarts.
+- **Fluid Grisp & Docker Sync (`ADR-027b`):**
+  - *Split-Screen Live Preview:* Instant browser-side reactive signals and `--grex-*` CSS custom properties with zero server restarts.
   - *Instant Publish Content:* Structured element JSON persisted via GRAB `use data` + `use cache` invalidation.
-  - *Instant Publish Styles:* Compiled CSS written to a dedicated `/static/grex/` mount (compatible with `--read-only` Docker containers and Grisp `--reload`) and fingerprinted via `server.asset` `?v=<hash>`.
-- **CSP-Safe & Dependency-Free:** No `eval()`, no `new Function()`, and no heavy build toolchain required in production.
+  - *Instant Publish Styles:* Compiled CSS written to a dedicated `/static/grex/` mount (compatible with `--read-only` Docker containers and Grisp `--reload`) and fingerprinted via `server.asset` `?v=<12-char-sha256>`.
+- **Exact GRAB Value Integrity (`ADR-025c`):** Preserves GRAB `GrabInteger` and `GrabDecimal` base-10 wire strings (e.g., `"19.95"`) without IEEE-754 float coercion.
+- **CSP-Safe & Dependency-Free:** No `eval()`, no `new Function()`, no unsafe `innerHTML`, and no heavy build toolchain required in production.
 
 ## Repository Structure
 
-- `AGENTS.md` — Engineering rules, model routing, and Fluid Grisp/Docker Sync rules.
+- `src/` — Zero-dependency ES modules (`signals.js`, `security.js`, `tokens.js`, `dom.js`, `bridge.js`, `index.js`).
+- `tests/` — Automated unit, DOM, XSS/CSP security, token, bridge, and release bundle tests (`npm test`).
+- `examples/grisp-basic/` — Runnable GRAB 1.0 + Grisp `server.asset` & `--reload` example.
+- `scripts/build-release-assets.mjs` — Builds clean browser-ready bundles in `dist/`.
+- `docs/releases/` — Plain-English milestone walkthrough PDF generator (`generate_release_guides.py`) and PDFs.
+- `GREX-EXPERT.md` — Non-negotiable engineering invariants checklist.
+- `AGENTS.md` — Engineering rules, Two-Tier Model Routing, and Tandem Handoff Protocol.
 - `HANDOFF.md` — Tandem AI ownership tracker.
 - `docs/ROADMAP.md` — Milestone roadmap (`v0.1` through `v1.0.0`).
-- `specifications/GREX-JS-SPEC-001.md` — Draft `v0.1` specification (awaiting owner review).
+- `specifications/` — Approved technical specifications (`GREX-JS-SPEC-001.md`).
 - `LICENSE` — MIT License.
+
+## Quick Verification
+
+```sh
+npm test
+node scripts/build-release-assets.mjs
+```
 
 ## Current Status
 
-**Drafting `v0.1` Specification:** `specifications/GREX-JS-SPEC-001.md` is ready for owner review before starting `v0.1` implementation.
+**`v0.1.0` Released (Complete):** Core reactive signals (`signal`, `computed`, `effect`, `batch`), zero-wrapper-div semantic HTML renderer & `data-grex-*` selective hydration, `--grex-*` token compiler, origin-checked `GrexPreviewBridge`, and GRAB 1.0 `server.asset` integration verified. Next milestone: `v0.2` specification planning.

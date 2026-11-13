@@ -1,0 +1,29 @@
+:root {
+  --grex-bg: #f8fafc;
+  --grex-surface: #ffffff;
+  --grex-ink: #0f172a;
+  --grex-muted: #475569;
+  --grex-accent: #0d9488;
+  --grex-accent-ink: #ffffff;
+  --grex-radius: 12px;
+  --grex-space-sm: 12px;
+  --grex-space-md: 24px;
+  --grex-space-lg: 48px;
+  --grex-max-width: 960px;
+}
+
+.grex-section {
+  --grex-pad: 48px;
+}
+
+@media (max-width: 1024px) {
+  .grex-section {
+    --grex-pad: 32px;
+  }
+}
+
+@media (max-width: 640px) {
+  .grex-section {
+    --grex-pad: 20px;
+  }
+}

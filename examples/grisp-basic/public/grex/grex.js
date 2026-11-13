@@ -1,0 +1,1121 @@
+/* Grex JS v0.1.0 | MIT License | Zero-build browser ES module */
+
+// --- signals.js ---
+/**
+ * Grex JS v0.1 Fine-Grained Reactive Engine & Exact GRAB Value Integrity.
+ * Zero external dependencies, zero eval()/new Function(), deterministic disposal.
+ */
+
+const CLEAN = 0;
+const CHECK = 1;
+const DIRTY = 2;
+
+let activeObserver = null;
+let batchDepth = 0;
+let isFlushing = false;
+const pendingEffects = new Set();
+
+function cleanupObserverSources(observer) {
+  for (const source of observer.sources) {
+    source.subscribers.delete(observer);
+  }
+  observer.sources.clear();
+}
+
+function trackSource(source) {
+  if (!activeObserver || activeObserver.disposed) {
+    return;
+  }
+  if (!activeObserver.sources.has(source)) {
+    activeObserver.sources.add(source);
+    source.subscribers.add(activeObserver);
+  }
+}
+
+function notifyDownstream(source, nextState) {
+  for (const sub of source.subscribers) {
+    if (sub.disposed) {
+      continue;
+    }
+    if (sub.kind === "effect") {
+      if (sub.state < nextState) {
+        sub.state = nextState;
+      }
+      pendingEffects.add(sub);
+    } else if (sub.kind === "computed") {
+      const prevState = sub.state;
+      if (prevState < nextState) {
+        sub.state = nextState;
+      }
+      if (prevState === CLEAN) {
+        notifyDownstream(sub, CHECK);
+      }
+    }
+  }
+}
+
+function flushEffects() {
+  if (batchDepth > 0 || isFlushing) {
+    return;
+  }
+  isFlushing = true;
+  let guard = 0;
+  try {
+    while (pendingEffects.size > 0) {
+      if (++guard > 10000) {
+        pendingEffects.clear();
+        throw new Error("Grex reactive cycle detected: effect triggered more than 10,000 iterations.");
+      }
+      const queue = Array.from(pendingEffects);
+      pendingEffects.clear();
+      for (const eff of queue) {
+        if (!eff.disposed && shouldUpdate(eff)) {
+          runEffect(eff);
+        }
+      }
+    }
+  } finally {
+    isFlushing = false;
+  }
+}
+
+function shouldUpdate(node) {
+  if (node.state === CLEAN) {
+    return false;
+  }
+  if (node.state === DIRTY) {
+    return true;
+  }
+  for (const source of node.sources) {
+    if (source.kind === "computed") {
+      evaluateComputed(source);
+      if (node.state === DIRTY) {
+        return true;
+      }
+    }
+  }
+  node.state = CLEAN;
+  return false;
+}
+
+function evaluateComputed(comp) {
+  if (comp.disposed) {
+    return comp.value;
+  }
+  if (comp.state === CLEAN) {
+    return comp.value;
+  }
+  if (!shouldUpdate(comp)) {
+    return comp.value;
+  }
+
+  const prevObserver = activeObserver;
+  cleanupObserverSources(comp);
+  activeObserver = comp;
+  let nextValue;
+  try {
+    nextValue = comp.fn();
+  } finally {
+    activeObserver = prevObserver;
+  }
+
+  const changed = !comp.initialized || !Object.is(comp.value, nextValue);
+  comp.value = nextValue;
+  comp.initialized = true;
+  comp.state = CLEAN;
+
+  if (changed) {
+    for (const sub of comp.subscribers) {
+      if (!sub.disposed && sub.state < DIRTY) {
+        sub.state = DIRTY;
+      }
+    }
+  }
+  return comp.value;
+}
+
+function runEffect(eff) {
+  if (eff.disposed) {
+    return;
+  }
+  if (typeof eff.cleanup === "function") {
+    const fn = eff.cleanup;
+    eff.cleanup = null;
+    fn();
+  }
+  cleanupObserverSources(eff);
+  eff.state = CLEAN;
+
+  const prevObserver = activeObserver;
+  activeObserver = eff;
+  try {
+    const maybeCleanup = eff.fn();
+    eff.cleanup = typeof maybeCleanup === "function" ? maybeCleanup : null;
+  } finally {
+    activeObserver = prevObserver;
+  }
+}
+
+/**
+ * Create a reactive signal holding a single value.
+ * @template T
+ * @param {T} initialValue
+ * @returns {{ get(): T, set(nextValue: T | ((prev: T) => T)): T, peek(): T }}
+ */
+export function signal(initialValue) {
+  const node = {
+    kind: "signal",
+    value: initialValue,
+    subscribers: new Set(),
+    disposed: false,
+  };
+
+  return {
+    get() {
+      trackSource(node);
+      return node.value;
+    },
+    peek() {
+      return node.value;
+    },
+    set(nextValue) {
+      const resolved = typeof nextValue === "function" ? nextValue(node.value) : nextValue;
+      if (Object.is(node.value, resolved)) {
+        return node.value;
+      }
+      node.value = resolved;
+      notifyDownstream(node, DIRTY);
+      flushEffects();
+      return node.value;
+    },
+  };
+}
+
+/**
+ * Create a lazy, memoized derived signal.
+ * @template T
+ * @param {() => T} fn
+ * @returns {{ get(): T, peek(): T, dispose(): void }}
+ */
+export function computed(fn) {
+  if (typeof fn !== "function") {
+    throw new TypeError("computed(fn) requires a function.");
+  }
+
+  const node = {
+    kind: "computed",
+    fn,
+    value: undefined,
+    initialized: false,
+    state: DIRTY,
+    sources: new Set(),
+    subscribers: new Set(),
+    disposed: false,
+  };
+
+  return {
+    get() {
+      if (node.disposed) {
+        return node.value;
+      }
+      evaluateComputed(node);
+      trackSource(node);
+      return node.value;
+    },
+    peek() {
+      if (node.disposed) {
+        return node.value;
+      }
+      return evaluateComputed(node);
+    },
+    dispose() {
+      if (node.disposed) {
+        return;
+      }
+      node.disposed = true;
+      cleanupObserverSources(node);
+      node.subscribers.clear();
+    },
+  };
+}
+
+/**
+ * Run a reactive side effect immediately and re-run when tracked signals change.
+ * @param {() => (void | (() => void))} fn
+ * @returns {() => void} dispose callback
+ */
+export function effect(fn) {
+  if (typeof fn !== "function") {
+    throw new TypeError("effect(fn) requires a function.");
+  }
+
+  const eff = {
+    kind: "effect",
+    fn,
+    cleanup: null,
+    state: DIRTY,
+    sources: new Set(),
+    disposed: false,
+  };
+
+  runEffect(eff);
+
+  return function dispose() {
+    if (eff.disposed) {
+      return;
+    }
+    eff.disposed = true;
+    pendingEffects.delete(eff);
+    cleanupObserverSources(eff);
+    if (typeof eff.cleanup === "function") {
+      const cleanupFn = eff.cleanup;
+      eff.cleanup = null;
+      cleanupFn();
+    }
+  };
+}
+
+/**
+ * Coalesce multiple signal updates so downstream effects run once at the end.
+ * @template T
+ * @param {() => T} fn
+ * @returns {T}
+ */
+export function batch(fn) {
+  if (typeof fn !== "function") {
+    throw new TypeError("batch(fn) requires a function.");
+  }
+  batchDepth += 1;
+  try {
+    return fn();
+  } finally {
+    batchDepth -= 1;
+    if (batchDepth === 0) {
+      flushEffects();
+    }
+  }
+}
+
+/**
+ * Execute a function without tracking any signal reads inside the current observer.
+ * @template T
+ * @param {() => T} fn
+ * @returns {T}
+ */
+export function untrack(fn) {
+  if (typeof fn !== "function") {
+    throw new TypeError("untrack(fn) requires a function.");
+  }
+  const prevObserver = activeObserver;
+  activeObserver = null;
+  try {
+    return fn();
+  } finally {
+    activeObserver = prevObserver;
+  }
+}
+
+/**
+ * Check whether a value is an exact GRAB base-10 integer or decimal wire string.
+ * @param {unknown} value
+ * @returns {boolean}
+ */
+export function isExactGrabWireString(value) {
+  return typeof value === "string" && /^[+-]?\d+(?:\.\d+)?$/.test(value.trim());
+}
+
+/**
+ * Format a GRAB base-10 integer or decimal wire string (e.g. "19.95") for display
+ * using pure string manipulation—never coercing to IEEE-754 floating-point math.
+ *
+ * @param {string | number} value
+ * @param {{ prefix?: string, suffix?: string, decimals?: number | null, groupSeparator?: string }} [options]
+ * @returns {string}
+ */
+export function formatGrabDecimal(value, options = {}) {
+  const {
+    prefix = "",
+    suffix = "",
+    decimals = null,
+    groupSeparator = ",",
+  } = options;
+
+  const raw = typeof value === "string" ? value.trim() : String(value);
+  const match = /^([+-])?(\d+)(?:\.(\d+))?$/.exec(raw);
+  if (!match) {
+    throw new TypeError(`Expected exact base-10 decimal string, received: ${String(value)}`);
+  }
+
+  const sign = match[1] === "-" ? "-" : "";
+  let intPart = match[2].replace(/^0+(?=\d)/, "");
+  let fracPart = match[3] || "";
+
+  if (typeof decimals === "number" && Number.isInteger(decimals) && decimals >= 0) {
+    if (fracPart.length < decimals) {
+      fracPart = fracPart.padEnd(decimals, "0");
+    } else if (fracPart.length > decimals) {
+      fracPart = fracPart.slice(0, decimals);
+    }
+  }
+
+  if (groupSeparator) {
+    intPart = intPart.replace(/\B(?=(\d{3})+(?!\d))/g, groupSeparator);
+  }
+
+  const numeric = fracPart.length > 0 ? `${intPart}.${fracPart}` : intPart;
+  return `${sign}${prefix}${numeric}${suffix}`;
+}
+
+// --- security.js ---
+/**
+ * Grex JS v0.1 Strict CSP & XSS Security Guards (ADR-014, ADR-017).
+ * Blocks unsafe tags, javascript:/data: URLs, and inline on* event handlers.
+ */
+
+export class GrexSecurityError extends Error {
+  constructor(message) {
+    super(message);
+    this.name = "GrexSecurityError";
+  }
+}
+
+const FORBIDDEN_TAGS = new Set([
+  "script",
+  "style",
+  "iframe",
+  "frame",
+  "frameset",
+  "object",
+  "embed",
+  "applet",
+  "base",
+  "meta",
+  "link",
+]);
+
+const URL_ATTRIBUTES = new Set([
+  "href",
+  "src",
+  "action",
+  "formaction",
+  "poster",
+  "cite",
+]);
+
+const ALLOWED_URL_SCHEMES = new Set(["http:", "https:", "mailto:", "tel:"]);
+
+/**
+ * Validate that a tag name is a safe semantic HTML5 tag.
+ * @param {string} tag
+ * @returns {string} normalized lowercase tag name
+ */
+export function assertSafeTag(tag) {
+  if (typeof tag !== "string") {
+    throw new GrexSecurityError("Element tag must be a non-empty string.");
+  }
+  const normalized = tag.trim().toLowerCase();
+  if (!/^[a-z][a-z0-9-]*$/.test(normalized)) {
+    throw new GrexSecurityError(`Invalid HTML tag name: "${tag}".`);
+  }
+  if (FORBIDDEN_TAGS.has(normalized)) {
+    throw new GrexSecurityError(`Forbidden HTML tag "${normalized}" blocked by Grex CSP policy.`);
+  }
+  return normalized;
+}
+
+/**
+ * Check whether an attribute name is forbidden (e.g., inline on* handlers or srcdoc).
+ * @param {string} attrName
+ * @returns {boolean}
+ */
+export function isForbiddenAttribute(attrName) {
+  if (typeof attrName !== "string") {
+    return true;
+  }
+  const normalized = attrName.trim().toLowerCase();
+  if (!normalized || !/^[a-z_:][a-z0-9_.:-]*$/.test(normalized)) {
+    return true;
+  }
+  return normalized.startsWith("on") || normalized === "srcdoc";
+}
+
+/**
+ * Validate a URL string, blocking javascript:, data:, vbscript:, and file: protocols.
+ * Strips ASCII control characters and whitespace before inspecting the scheme.
+ * @param {unknown} url
+ * @returns {boolean}
+ */
+export function isSafeUrl(url) {
+  if (typeof url !== "string") {
+    return false;
+  }
+  // Remove ASCII control chars & whitespace attackers insert inside schemes (e.g. java\tscript:).
+  const cleaned = url.replace(/[\u0000-\u0020\u007f]+/g, "");
+  if (cleaned === "" || cleaned.startsWith("/") || cleaned.startsWith("./") || cleaned.startsWith("../") || cleaned.startsWith("#") || cleaned.startsWith("?")) {
+    return true;
+  }
+
+  const schemeMatch = /^([a-zA-Z][a-zA-Z0-9+.-]*:)/.exec(cleaned);
+  if (!schemeMatch) {
+    // Relative path without explicit scheme (e.g. "products/hat")
+    return true;
+  }
+
+  const scheme = schemeMatch[1].toLowerCase();
+  return ALLOWED_URL_SCHEMES.has(scheme);
+}
+
+/**
+ * Validate an attribute name + value pair and return the safe string value.
+ * Throws GrexSecurityError for forbidden attributes or unsafe URLs.
+ * @param {string} attrName
+ * @param {unknown} value
+ * @returns {string}
+ */
+export function sanitizeAttributeValue(attrName, value) {
+  if (isForbiddenAttribute(attrName)) {
+    throw new GrexSecurityError(`Forbidden attribute "${String(attrName)}" blocked by Grex XSS policy.`);
+  }
+  const normalized = attrName.trim().toLowerCase();
+  const strValue = value == null ? "" : String(value);
+
+  if (URL_ATTRIBUTES.has(normalized) && !isSafeUrl(strValue)) {
+    throw new GrexSecurityError(`Unsafe URL protocol blocked on "${normalized}" attribute.`);
+  }
+
+  return strValue;
+}
+
+/**
+ * Safely assign text content to a DOM node using textContent (never innerHTML).
+ * Preserves exact string representations (including GRAB decimal wire strings).
+ * @param {Node} node
+ * @param {unknown} value
+ */
+export function setSafeText(node, value) {
+  const safeText = value == null ? "" : String(value);
+  if (node.nodeType === 3) {
+    node.nodeValue = safeText;
+  } else {
+    node.textContent = safeText;
+  }
+}
+
+// --- tokens.js ---
+/**
+ * Grex JS v0.1 Responsive --grex-* Design Tokens & /static/grex/ CSS Compiler (ADR-027b).
+ */
+
+
+export const DEFAULT_BREAKPOINTS = Object.freeze({
+  base: null,
+  tablet: "(max-width: 1024px)",
+  mobile: "(max-width: 640px)",
+});
+
+const UNSAFE_CSS_VALUE_PATTERN = /[;{}]|<\/style|expression\s*\(|javascript:/i;
+
+/**
+ * Normalize and validate a --grex-* CSS custom property name.
+ * @param {string} name
+ * @returns {string}
+ */
+export function normalizeTokenName(name) {
+  if (typeof name !== "string") {
+    throw new GrexSecurityError("Token name must be a string.");
+  }
+  const trimmed = name.trim();
+  const normalized = trimmed.startsWith("--grex-")
+    ? trimmed
+    : trimmed.startsWith("--")
+      ? `--grex-${trimmed.slice(2)}`
+      : `--grex-${trimmed}`;
+
+  if (!/^--grex-[a-z0-9-]+$/i.test(normalized)) {
+    throw new GrexSecurityError(`Invalid --grex-* token name: "${name}".`);
+  }
+  return normalized.toLowerCase();
+}
+
+/**
+ * Validate a CSS token value to prevent style-block injection.
+ * @param {unknown} value
+ * @returns {string}
+ */
+export function validateTokenValue(value) {
+  if (value == null) {
+    return "";
+  }
+  const str = String(value).trim();
+  if (UNSAFE_CSS_VALUE_PATTERN.test(str)) {
+    throw new GrexSecurityError(`Unsafe CSS token value blocked: "${str}".`);
+  }
+  return str;
+}
+
+/**
+ * Apply --grex-* CSS custom properties directly onto a DOM element (no wrapper divs).
+ * @param {Element} element
+ * @param {Record<string, unknown>} tokens
+ */
+export function applyTokens(element, tokens) {
+  if (!element || !element.style) {
+    throw new TypeError("applyTokens(element, tokens) requires a DOM element with .style.");
+  }
+  if (!tokens || typeof tokens !== "object") {
+    return;
+  }
+  for (const [rawName, rawValue] of Object.entries(tokens)) {
+    const name = normalizeTokenName(rawName);
+    const val = validateTokenValue(rawValue);
+    if (val === "") {
+      element.style.removeProperty(name);
+    } else {
+      element.style.setProperty(name, val);
+    }
+  }
+}
+
+function formatDeclBlock(indent, tokenMap) {
+  const entries = Object.entries(tokenMap || {});
+  if (entries.length === 0) {
+    return [];
+  }
+  return entries.map(([k, v]) => `${indent}${normalizeTokenName(k)}: ${validateTokenValue(v)};`);
+}
+
+function assertSafeSelector(selector) {
+  if (typeof selector !== "string" || selector.trim() === "" || /[{}<>]/.test(selector)) {
+    throw new GrexSecurityError(`Unsafe CSS selector blocked: "${String(selector)}".`);
+  }
+  return selector.trim();
+}
+
+/**
+ * Compile responsive --grex-* tokens into deterministic CSS suitable for /static/grex/*.css
+ * on --read-only Docker containers served via GRAB server.asset.
+ *
+ * @param {{
+ *   root?: Record<string, unknown>,
+ *   selectors?: Record<string, Record<string, Record<string, unknown>>>,
+ *   breakpoints?: Record<string, string | null>
+ * }} config
+ * @returns {string}
+ */
+export function compileTokenCss(config = {}) {
+  const breakpoints = { ...DEFAULT_BREAKPOINTS, ...(config.breakpoints || {}) };
+  const chunks = [];
+
+  if (config.root && Object.keys(config.root).length > 0) {
+    const decls = formatDeclBlock("  ", config.root);
+    chunks.push(`:root {\n${decls.join("\n")}\n}`);
+  }
+
+  const selectors = config.selectors || {};
+  const mediaBuckets = new Map();
+
+  for (const [rawSelector, deviceTokens] of Object.entries(selectors)) {
+    const selector = assertSafeSelector(rawSelector);
+    if (!deviceTokens || typeof deviceTokens !== "object") {
+      continue;
+    }
+
+    for (const [bpName, tokenMap] of Object.entries(deviceTokens)) {
+      if (!(bpName in breakpoints)) {
+        throw new GrexSecurityError(`Unknown breakpoint "${bpName}" in compileTokenCss.`);
+      }
+      const decls = formatDeclBlock("  ", tokenMap);
+      if (decls.length === 0) {
+        continue;
+      }
+      const query = breakpoints[bpName];
+      if (!query) {
+        chunks.push(`${selector} {\n${decls.join("\n")}\n}`);
+      } else {
+        if (!mediaBuckets.has(query)) {
+          mediaBuckets.set(query, []);
+        }
+        const indented = decls.map((line) => `  ${line}`);
+        mediaBuckets.get(query).push(`  ${selector} {\n${indented.join("\n")}\n  }`);
+      }
+    }
+  }
+
+  for (const [query, rules] of mediaBuckets.entries()) {
+    chunks.push(`@media ${query} {\n${rules.join("\n")}\n}`);
+  }
+
+  return chunks.join("\n\n") + (chunks.length > 0 ? "\n" : "");
+}
+
+// --- dom.js ---
+/**
+ * Grex JS v0.1 Zero-Wrapper-Div Semantic DOM Engine & Selective Hydration (ADR-018).
+ */
+
+
+function isReactiveValue(val) {
+  return Boolean(val && typeof val === "object" && typeof val.get === "function");
+}
+
+function resolveMaybeReactive(val) {
+  if (isReactiveValue(val)) {
+    return val.get();
+  }
+  if (typeof val === "function") {
+    return val();
+  }
+  return val;
+}
+
+function applySafeAttribute(element, attrName, value) {
+  if (value === false || value == null) {
+    sanitizeAttributeValue(attrName, "");
+    element.removeAttribute(attrName);
+    return;
+  }
+  const finalValue = value === true ? "" : sanitizeAttributeValue(attrName, value);
+  element.setAttribute(attrName, finalValue);
+}
+
+/**
+ * Bind reactive text, attributes, --grex-* tokens, and event listeners directly
+ * to an existing semantic DOM element without inserting any wrapper <div>s.
+ *
+ * @param {Element} element
+ * @param {{
+ *   text?: unknown,
+ *   attrs?: Record<string, unknown>,
+ *   tokens?: Record<string, unknown>,
+ *   on?: Record<string, EventListener>
+ * }} [bindings]
+ * @returns {{ element: Element, dispose(): void }}
+ */
+export function bindElement(element, bindings = {}) {
+  const disposers = [];
+  const listeners = [];
+
+  if ("text" in bindings && bindings.text !== undefined) {
+    if (isReactiveValue(bindings.text) || typeof bindings.text === "function") {
+      disposers.push(
+        effect(() => {
+          setSafeText(element, resolveMaybeReactive(bindings.text));
+        })
+      );
+    } else {
+      setSafeText(element, bindings.text);
+    }
+  }
+
+  if (bindings.attrs && typeof bindings.attrs === "object") {
+    for (const [attrName, attrValue] of Object.entries(bindings.attrs)) {
+      if (isReactiveValue(attrValue) || typeof attrValue === "function") {
+        disposers.push(
+          effect(() => {
+            applySafeAttribute(element, attrName, resolveMaybeReactive(attrValue));
+          })
+        );
+      } else {
+        applySafeAttribute(element, attrName, attrValue);
+      }
+    }
+  }
+
+  if (bindings.tokens && typeof bindings.tokens === "object") {
+    for (const [rawToken, tokenValue] of Object.entries(bindings.tokens)) {
+      const tokenName = normalizeTokenName(rawToken);
+      if (isReactiveValue(tokenValue) || typeof tokenValue === "function") {
+        disposers.push(
+          effect(() => {
+            const val = validateTokenValue(resolveMaybeReactive(tokenValue));
+            if (val === "") {
+              element.style.removeProperty(tokenName);
+            } else {
+              element.style.setProperty(tokenName, val);
+            }
+          })
+        );
+      } else {
+        const val = validateTokenValue(tokenValue);
+        if (val === "") {
+          element.style.removeProperty(tokenName);
+        } else {
+          element.style.setProperty(tokenName, val);
+        }
+      }
+    }
+  }
+
+  if (bindings.on && typeof bindings.on === "object") {
+    for (const [eventName, handler] of Object.entries(bindings.on)) {
+      if (typeof handler !== "function") {
+        throw new TypeError(`Event handler for "${eventName}" must be a function.`);
+      }
+      const cleanEvent = eventName.trim().toLowerCase();
+      element.addEventListener(cleanEvent, handler);
+      listeners.push([cleanEvent, handler]);
+    }
+  }
+
+  return {
+    element,
+    dispose() {
+      for (const disposeFn of disposers) {
+        disposeFn();
+      }
+      disposers.length = 0;
+      for (const [cleanEvent, handler] of listeners) {
+        element.removeEventListener(cleanEvent, handler);
+      }
+      listeners.length = 0;
+    },
+  };
+}
+
+/**
+ * Render a semantic HTML5 element directly with zero wrapper <div> nodes.
+ *
+ * @param {{
+ *   tag: string,
+ *   text?: unknown,
+ *   attrs?: Record<string, unknown>,
+ *   tokens?: Record<string, unknown>,
+ *   on?: Record<string, EventListener>,
+ *   children?: Array<unknown>
+ * }} spec
+ * @param {{ document?: Document }} [options]
+ * @returns {{ element: Element, dispose(): void }}
+ */
+export function renderElement(spec, options = {}) {
+  const doc = options.document || globalThis.document;
+  if (!doc || typeof doc.createElement !== "function") {
+    throw new Error("renderElement requires a DOM document.");
+  }
+  if (!spec || typeof spec !== "object") {
+    throw new TypeError("renderElement(spec) requires a specification object.");
+  }
+
+  const tag = assertSafeTag(spec.tag);
+  const element = doc.createElement(tag);
+  const childDisposers = [];
+
+  const rootBinding = bindElement(element, {
+    text: spec.text,
+    attrs: spec.attrs,
+    tokens: spec.tokens,
+    on: spec.on,
+  });
+
+  if (Array.isArray(spec.children)) {
+    for (const child of spec.children) {
+      if (child == null || child === false) {
+        continue;
+      }
+      if (isReactiveValue(child) || typeof child === "function") {
+        const textNode = doc.createTextNode("");
+        element.appendChild(textNode);
+        childDisposers.push(
+          effect(() => {
+            setSafeText(textNode, resolveMaybeReactive(child));
+          })
+        );
+      } else if (typeof child === "object" && "tag" in child) {
+        const renderedChild = renderElement(child, { document: doc });
+        element.appendChild(renderedChild.element);
+        childDisposers.push(renderedChild.dispose);
+      } else if (typeof child === "object" && child.nodeType) {
+        element.appendChild(child);
+      } else {
+        const textNode = doc.createTextNode(String(child));
+        element.appendChild(textNode);
+      }
+    }
+  }
+
+  return {
+    element,
+    dispose() {
+      rootBinding.dispose();
+      for (const disposeFn of childDisposers) {
+        disposeFn();
+      }
+      childDisposers.length = 0;
+    },
+  };
+}
+
+/**
+ * Selectively hydrate server-rendered .grab.html markup in place via data-grex-* attributes.
+ * Never tears down existing DOM nodes and never inserts wrapper <div> elements.
+ *
+ * @param {Document | Element} root
+ * @param {{
+ *   signals?: Record<string, { get(): unknown, set?(v: unknown): void }>,
+ *   actions?: Record<string, EventListener>
+ * }} [registry]
+ * @returns {{
+ *   elements: Record<string, Element>,
+ *   signals: Record<string, { get(): unknown, set?(v: unknown): void }>,
+ *   dispose(): void
+ * }}
+ */
+export function hydrate(root = globalThis.document, registry = {}) {
+  if (!root || typeof root.querySelectorAll !== "function") {
+    throw new Error("hydrate(root, registry) requires a DOM document or root element.");
+  }
+
+  const signals = registry.signals || {};
+  const actions = registry.actions || {};
+  const elements = {};
+  const disposers = [];
+
+  const candidates = Array.from(root.querySelectorAll("*"));
+  if (typeof root.getAttribute === "function" && root.attributes) {
+    candidates.unshift(root);
+  }
+
+  for (const el of candidates) {
+    const grexId = el.getAttribute("data-grex-id");
+    if (grexId) {
+      elements[grexId] = el;
+    }
+
+    const attrsObj = el.attributes ? Array.from(el.attributes) : [];
+    const bindings = { attrs: {}, tokens: {}, on: {} };
+    let hasBindings = false;
+
+    for (const attr of attrsObj) {
+      const name = attr.name;
+      const key = attr.value;
+
+      if (name === "data-grex-text") {
+        if (key in signals) {
+          bindings.text = signals[key];
+          hasBindings = true;
+        }
+      } else if (name.startsWith("data-grex-attr-")) {
+        const targetAttr = name.slice("data-grex-attr-".length);
+        if (key in signals) {
+          bindings.attrs[targetAttr] = signals[key];
+          hasBindings = true;
+        }
+      } else if (name.startsWith("data-grex-token-")) {
+        const tokenSuffix = name.slice("data-grex-token-".length);
+        if (key in signals) {
+          bindings.tokens[tokenSuffix] = signals[key];
+          hasBindings = true;
+        }
+      } else if (name.startsWith("data-grex-on-")) {
+        const eventName = name.slice("data-grex-on-".length);
+        if (typeof actions[key] === "function") {
+          bindings.on[eventName] = actions[key];
+          hasBindings = true;
+        }
+      }
+    }
+
+    if (hasBindings) {
+      const bound = bindElement(el, bindings);
+      disposers.push(bound.dispose);
+    }
+  }
+
+  return {
+    elements,
+    signals,
+    dispose() {
+      for (const disposeFn of disposers) {
+        disposeFn();
+      }
+      disposers.length = 0;
+    },
+  };
+}
+
+// --- bridge.js ---
+/**
+ * Grex JS v0.1 Origin-Checked Split-Screen Preview Bridge (GrexPreviewBridge).
+ * Patches in-memory signals, attributes, text, and --grex-* CSS custom properties
+ * with zero Grisp restarts and strict postMessage origin & schema validation.
+ */
+
+
+export const PREVIEW_CHANNEL = "grex-preview-v1";
+
+function normalizeAllowedOrigins(allowedOrigins) {
+  if (!allowedOrigins) {
+    throw new GrexSecurityError("GrexPreviewBridge requires a non-empty allowedOrigins allowlist.");
+  }
+  const list = Array.isArray(allowedOrigins) ? allowedOrigins : Array.from(allowedOrigins);
+  if (list.length === 0) {
+    throw new GrexSecurityError("GrexPreviewBridge allowedOrigins allowlist cannot be empty.");
+  }
+  const normalized = new Set();
+  for (const origin of list) {
+    if (typeof origin !== "string" || origin.trim() === "" || origin.trim() === "*") {
+      throw new GrexSecurityError(`Invalid or wildcard origin "${String(origin)}" rejected by GrexPreviewBridge.`);
+    }
+    normalized.add(origin.trim());
+  }
+  return normalized;
+}
+
+function resolveTargetElement(targetId, elements, root) {
+  if (!targetId) {
+    return root && root.documentElement ? root.documentElement : root;
+  }
+  if (elements && elements[targetId]) {
+    return elements[targetId];
+  }
+  if (root && typeof root.querySelector === "function") {
+    const safeId = String(targetId).replace(/["\\]/g, "\\$&");
+    return root.querySelector(`[data-grex-id="${safeId}"]`);
+  }
+  return null;
+}
+
+/**
+ * Create an origin-checked GrexPreviewBridge instance.
+ *
+ * @param {{
+ *   allowedOrigins: string[] | Set<string>,
+ *   targetWindow?: Window,
+ *   root?: Document | Element,
+ *   signals?: Record<string, { set(v: unknown): void }>,
+ *   elements?: Record<string, Element>,
+ *   onError?: (err: Error, event: MessageEvent) => void
+ * }} options
+ */
+export function createPreviewBridge(options) {
+  if (!options || typeof options !== "object") {
+    throw new TypeError("createPreviewBridge(options) requires an options object.");
+  }
+
+  const allowedOrigins = normalizeAllowedOrigins(options.allowedOrigins);
+  const targetWindow = options.targetWindow || globalThis.window;
+  const root = options.root || globalThis.document;
+  const signals = options.signals || {};
+  const elements = options.elements || {};
+  const onError = typeof options.onError === "function" ? options.onError : null;
+
+  let listening = false;
+
+  function applyOperation(op) {
+    if (!op || typeof op !== "object") {
+      throw new GrexSecurityError("Malformed preview bridge operation.");
+    }
+
+    switch (op.type) {
+      case "patch-signal": {
+        if (typeof op.key !== "string" || !(op.key in signals)) {
+          throw new GrexSecurityError(`Unknown signal key "${String(op.key)}".`);
+        }
+        signals[op.key].set(op.value);
+        return true;
+      }
+
+      case "patch-token": {
+        const el = resolveTargetElement(op.targetId, elements, root);
+        if (!el || !el.style) {
+          throw new GrexSecurityError(`Target element "${String(op.targetId)}" not found for patch-token.`);
+        }
+        const tokenName = normalizeTokenName(op.token);
+        const tokenValue = validateTokenValue(op.value);
+        if (tokenValue === "") {
+          el.style.removeProperty(tokenName);
+        } else {
+          el.style.setProperty(tokenName, tokenValue);
+        }
+        return true;
+      }
+
+      case "patch-attr": {
+        const el = resolveTargetElement(op.targetId, elements, root);
+        if (!el) {
+          throw new GrexSecurityError(`Target element "${String(op.targetId)}" not found for patch-attr.`);
+        }
+        if (op.value === false || op.value == null) {
+          sanitizeAttributeValue(op.attr, "");
+          el.removeAttribute(op.attr);
+        } else {
+          const safeVal = op.value === true ? "" : sanitizeAttributeValue(op.attr, op.value);
+          el.setAttribute(op.attr, safeVal);
+        }
+        return true;
+      }
+
+      case "patch-text": {
+        const el = resolveTargetElement(op.targetId, elements, root);
+        if (!el) {
+          throw new GrexSecurityError(`Target element "${String(op.targetId)}" not found for patch-text.`);
+        }
+        setSafeText(el, op.value);
+        return true;
+      }
+
+      default:
+        throw new GrexSecurityError(`Unsupported preview bridge operation type "${String(op.type)}".`);
+    }
+  }
+
+  /**
+   * Validate and process a postMessage event.
+   * Returns true if applied, false if rejected (fail-closed).
+   * @param {MessageEvent} event
+   * @returns {boolean}
+   */
+  function handleMessage(event) {
+    try {
+      if (!event || typeof event.origin !== "string" || !allowedOrigins.has(event.origin)) {
+        throw new GrexSecurityError(`Rejected preview message from untrusted origin "${String(event && event.origin)}".`);
+      }
+
+      const payload = event.data;
+      if (!payload || typeof payload !== "object" || payload.channel !== PREVIEW_CHANNEL) {
+        throw new GrexSecurityError("Rejected preview message with invalid channel or payload.");
+      }
+
+      if (payload.type === "batch") {
+        if (!Array.isArray(payload.ops)) {
+          throw new GrexSecurityError("Batch preview payload requires an ops array.");
+        }
+        batch(() => {
+          for (const op of payload.ops) {
+            applyOperation(op);
+          }
+        });
+        return true;
+      }
+
+      return applyOperation(payload);
+    } catch (err) {
+      if (onError) {
+        onError(err, event);
+      }
+      return false;
+    }
+  }
+
+  function start() {
+    if (listening || !targetWindow || typeof targetWindow.addEventListener !== "function") {
+      return;
+    }
+    targetWindow.addEventListener("message", handleMessage);
+    listening = true;
+  }
+
+  function stop() {
+    if (!listening || !targetWindow || typeof targetWindow.removeEventListener !== "function") {
+      return;
+    }
+    targetWindow.removeEventListener("message", handleMessage);
+    listening = false;
+  }
+
+  return {
+    handleMessage,
+    start,
+    stop,
+    dispose: stop,
+  };
+}

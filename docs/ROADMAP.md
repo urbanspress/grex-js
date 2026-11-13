@@ -5,7 +5,7 @@
 ---
 
 ## `v0.1` — Core Reactive Signals, Semantic DOM Engine & Preview Bridge
-**Status:** Specification Ready for Approval ([`specifications/GREX-JS-SPEC-001.md`](../specifications/GREX-JS-SPEC-001.md))
+**Status:** Complete (`v0.1.0` Released 2026-11-13 — [`specifications/GREX-JS-SPEC-001.md`](../specifications/GREX-JS-SPEC-001.md))
 
 - **Fine-Grained Reactive Signals:** `signal`, `computed`, `effect`, and `batch` primitives with automatic dependency tracking, glitch-free diamond-dependency consistency, and deterministic `dispose()` cleanup.
 - **Zero-Wrapper-Div DOM Engine (`ADR-018`):** Direct semantic HTML5 element creation and selective hydration (`data-grex-*` on `.grab.html`) without virtual-DOM overhead or extra wrapper `<div>` tags.

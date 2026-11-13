@@ -1,0 +1,180 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Grex JS v0.1.0 — Core Reactive Runtime & Zero-Wrapper-Div DOM Engine</title>
+  <style>
+:root {
+  --ink: #0f172a;
+  --muted: #475569;
+  --line: #cbd5e1;
+  --bg-page: #f8fafc;
+  --surface: #ffffff;
+  --teal: #0d9488;
+  --teal-soft: #ccfbf1;
+  --blue: #0284c7;
+  --blue-soft: #e0f2fe;
+  --green: #15803d;
+  --green-soft: #dcfce7;
+  --amber: #b45309;
+  --amber-soft: #fef3c7;
+}
+* { box-sizing: border-box; }
+@page { size: A4; margin: 12mm 14mm 14mm 14mm; }
+body {
+  margin: 0;
+  padding: 0;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  color: var(--ink);
+  background: var(--bg-page);
+  line-height: 1.55;
+  font-size: 13.5px;
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+}
+.header-hero {
+  background: linear-gradient(135deg, #0f172a 0%, #1e293b 60%, #0d9488 100%);
+  color: #ffffff;
+  border-radius: 12px;
+  padding: 24px 28px;
+  margin-bottom: 18px;
+}
+.header-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+.version-pill {
+  background: #38bdf8;
+  color: #0f172a;
+  font-weight: 800;
+  font-size: 12px;
+  padding: 4px 12px;
+  border-radius: 999px;
+}
+.date-tag { font-size: 11.5px; color: #cbd5e1; }
+h1 { margin: 0 0 6px 0; font-size: 25px; color: #ffffff; }
+.subtitle { font-size: 14.5px; color: #5eead4; font-weight: 600; margin: 0 0 10px 0; }
+.lead-p { margin: 0; color: #e2e8f0; font-size: 13.5px; }
+.card {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 16px 20px;
+  margin-bottom: 14px;
+  page-break-inside: avoid;
+}
+h2 { margin: 0 0 8px 0; font-size: 16px; color: var(--ink); }
+p { margin: 0 0 8px 0; color: var(--muted); }
+ul { margin: 6px 0 0 0; padding-left: 18px; color: var(--muted); }
+li { margin-bottom: 5px; }
+.grid-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+.badge {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 6px;
+  font-size: 11.5px;
+  font-weight: 700;
+  margin-bottom: 6px;
+}
+.badge-teal { background: var(--teal-soft); color: #115e59; }
+.badge-blue { background: var(--blue-soft); color: #075985; }
+.badge-green { background: var(--green-soft); color: var(--green); }
+.badge-amber { background: var(--amber-soft); color: var(--amber); }
+pre {
+  background: #0f172a;
+  color: #e2e8f0;
+  padding: 12px 14px;
+  border-radius: 8px;
+  font-size: 11.5px;
+  overflow-x: auto;
+  margin: 8px 0 0 0;
+}
+footer {
+  margin-top: 14px;
+  padding-top: 10px;
+  border-top: 1px solid var(--line);
+  display: flex;
+  justify-content: space-between;
+  font-size: 11.5px;
+  color: var(--muted);
+}
+</style>
+</head>
+<body>
+  <header class="header-hero">
+    <div class="header-top">
+      <span class="version-pill">Grex JS v0.1.0</span>
+      <span class="date-tag">Released 2026-11-13 · urbanspress/grex-js</span>
+    </div>
+    <h1>Grex JS v0.1.0 — Core Reactive Runtime & Zero-Wrapper-Div DOM Engine</h1>
+    <p class="subtitle">Plain-English Walkthrough for Store Owners, Designers & Developers</p>
+    <p class="lead-p">Grex JS v0.1.0 delivers the lightweight, zero-build-step browser engine powering Grex Builder, GrabLab CMS, and Groxy AI on top of GRAB 1.0 and Grisp. Instead of wrapping every page element in layers of slow <div> tags, Grex JS updates only the exact text, attributes, or style tokens that change.</p>
+  </header>
+
+  <main class="grid-2">
+  <section class="card">
+    <span class="badge badge-teal">1. Fine-Grained Signals</span>
+    <h2>Surgical Browser Updates Without Rebuilding Pages</h2>
+    <ul>
+      <li>signal(value) holds a single reactive value (like a product title, cart count, or price).</li>
+      <li>computed(fn) calculates derived values lazily and avoids glitchy double-updates in diamond dependency graphs.</li>
+      <li>effect(fn) updates only the exact text node or attribute affected and returns dispose() for leak-free cleanup.</li>
+      <li>batch(fn) groups multiple updates together so the browser redraws once at the end.</li>
+      <li>Exact GRAB Value Integrity (ADR-025c): Base-10 wire strings like "19.95" are formatted with formatGrabDecimal() using pure string math—never imprecise floating-point numbers.</li>
+    </ul>
+  </section>
+  <section class="card">
+    <span class="badge badge-blue">2. Zero-Wrapper-Div HTML</span>
+    <h2>Clean Semantic Markup & Selective Hydration (ADR-018)</h2>
+    <ul>
+      <li>renderElement() outputs native HTML5 tags (<section>, <header>, <article>, <button>, <a>) directly with zero .grex-wrapper or .grex-inner <div> bloat.</li>
+      <li>hydrate() attaches reactivity in place to server-rendered .grab.html pages using data-grex-* attributes without tearing down existing DOM nodes.</li>
+      <li>CSS custom properties (--grex-*) and classes apply straight to the semantic tag itself.</li>
+    </ul>
+  </section>
+  <section class="card">
+    <span class="badge badge-amber">3. Strict CSP & XSS Safety</span>
+    <h2>Fail-Closed Browser Security (ADR-014 & ADR-017)</h2>
+    <ul>
+      <li>Zero eval() and zero new Function(): runs safely under strict script-src 'self' Content-Security-Policy headers.</li>
+      <li>Text bindings always use textContent—never unsafe innerHTML.</li>
+      <li>URL attributes (href, src, action, formaction) block javascript:, data:, vbscript:, and control-character obfuscated links.</li>
+      <li>Inline on* event attributes (onclick, onerror, etc.) and dangerous tags (<script>, <iframe>, <object>) are blocked.</li>
+    </ul>
+  </section>
+  <section class="card">
+    <span class="badge badge-green">4. Fluid Grisp Sync & Bridge</span>
+    <h2>Instant Preview + server.asset Cache Busting (ADR-027b)</h2>
+    <ul>
+      <li>GrexPreviewBridge validates exact allowedOrigins (rejecting wildcards "*") and patches live signals and --grex-* CSS tokens in browser memory with zero Grisp restarts.</li>
+      <li>compileTokenCss() generates clean responsive CSS (base, tablet, mobile) for /static/grex/ so Grisp Docker containers stay --read-only.</li>
+      <li>GRAB's server.asset fingerprints /static/grex/* files (?v=<12-char-sha256>) with immutable caching on match and safe no-cache fallback during rolling restarts.</li>
+    </ul>
+  </section>
+  </main>
+
+  <section class="card">
+    <span class="badge badge-teal">GRAB 1.0 + Grisp Integration Example</span>
+    <h2>Zero-Restart Static Fingerprinting with <code>server.asset</code></h2>
+    <p>Grisp serves compiled stylesheets and Grex JS modules from <code>/static/grex/</code> with automatic SHA-256 <code>?v=</code> cache-busting:</p>
+    <pre>use server
+
+route "GET" "/"
+  set css_url to server.asset using "/static/grex/tokens.css"
+  set demo_js_url to server.asset using "/static/grex/demo.js"
+  give back server.html using "page.grab.html", record {title: "Northbound Goods", price: "19.95", css_url: css_url, demo_js_url: demo_js_url}
+end</pre>
+  </section>
+
+  <footer>
+    <span>Grex JS — Reactive Frontend Runtime for GRAB &amp; Grisp</span>
+    <span>Verified Release Guide · v0.1.0 · MIT License</span>
+  </footer>
+</body>
+</html>

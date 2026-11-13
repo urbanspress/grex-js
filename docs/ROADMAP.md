@@ -51,19 +51,19 @@
 ---
 
 ## `v0.4` — Accessibility, Global Theme/Class Manager & `grab mcp` Design Alignment
-**Status:** Planned
+**Status:** Approved Target; Specification in Review ([`specifications/GREX-JS-SPEC-004.md`](../specifications/GREX-JS-SPEC-004.md))
 
-- **Accessibility & Focus Management:** Built-in ARIA state management (`aria-expanded`, `aria-selected`, `aria-controls`), keyboard navigation (roving tabindex, Escape/focus trap for `Modal`), and focus-ring guardrails aligned with `GRAB-DESIGN-SYSTEM.md`.
-- **Global Style & Class Manager:** Reusable design presets and Bricks-style class tokens compiled to `/static/grex/`.
-- **AI & CMS Preview Parity:** Clean JSON serialization for **Grex Builder**, **GrabLab CMS**, and **Groxy AI** (`grab mcp`, `ADR-027a`).
+- **Accessibility Audit & Focus Guardrails:** `auditAccessibility(tree)` / `auditDom(root)` verifying WCAG AA contrast (`>= 4.5:1`), `Image` `alt` text, `<label>` associations, heading hierarchy (`h1`–`h6`), and `:focus-visible` focus-ring guardrails aligned with `GRAB-DESIGN-SYSTEM.md`.
+- **Global Theme & Class Manager:** `createTheme` (light/dark `--grex-*` presets) and `createClassManager` (reusable Bricks-style classes) compiled deterministically to `/static/grex/`.
+- **Machine-Readable Element Catalog (`grex.elements.json`):** Deterministic JSON schema for all 20 Grex elements + `validateElementNode()` so **Grex Builder**, **GrabLab CMS**, and **Groxy AI** (`grab mcp`, `ADR-027a`) compose validated pages with zero hallucinated attributes.
 - **Acceptance Criteria:**
-  1. Automated ARIA and keyboard navigation tests pass across `Nav`, `Tabs`, `Accordion`, and `Modal`.
-  2. Global class/token overrides resolve deterministically in both live `GrexPreviewBridge` mode and compiled `/static/grex/` CSS output.
+  1. Automated accessibility audit tests verify contrast, `alt`, `<label>`, heading hierarchy, and focus indicators.
+  2. Global theme/class overrides resolve deterministically in both live `GrexPreviewBridge` mode and compiled `/static/grex/` CSS output.
 
 ---
 
 ## `v1.0.0` — Stable Element Schema, SemVer Freeze & Production Release
-**Status:** Planned
+**Status:** Approved Target; Specification in Review ([`specifications/GREX-JS-SPEC-004.md`](../specifications/GREX-JS-SPEC-004.md))
 
 - **Stable `v1.0.0` Element Schema:** Versioned JSON element schema locked for **Grex Builder**, **GrabLab CMS**, and **Groxy AI** (`grab mcp`).
 - **SemVer `v1.x` Stability Freeze:** Public reactive API (`signal`, `computed`, `effect`, `batch`), `data-grex-*` hydration attributes, `--grex-*` token conventions, and `GrexPreviewBridge` message schema frozen for `v1.x`.

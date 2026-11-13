@@ -1,4 +1,4 @@
-/* Grex JS v0.3.0 | MIT License | Zero-build browser ES module */
+/* Grex JS v1.0.0 | MIT License | Zero-build browser ES module */
 
 // --- signals.js ---
 /**
@@ -3401,6 +3401,1053 @@ export function useMutation(client, endpoint, options = {}) {
       }
     },
   };
+}
+
+// --- theme.js ---
+/**
+ * Grex JS v0.4 / v1.0.0 Global Theme & Reusable Class Manager.
+ * Compiles deterministic CSS to /static/grex/ (--read-only Docker + server.asset compatible)
+ * and supports instant browser-memory --grex-* token updates.
+ */
+
+
+const DEFAULT_FOCUS_RING = "2px solid #0284c7";
+
+function flattenThemeTokens(spec = {}) {
+  const out = {};
+  const categories = ["tokens", "colors", "typography", "spacing", "radii", "shadows"];
+  for (const cat of categories) {
+    const group = spec[cat];
+    if (group && typeof group === "object") {
+      for (const [k, v] of Object.entries(group)) {
+        out[normalizeTokenName(k)] = validateTokenValue(v);
+      }
+    }
+  }
+  if (spec.focusRing !== undefined) {
+    out["--grex-focus-ring"] = validateTokenValue(spec.focusRing);
+  }
+  return out;
+}
+
+function formatThemeBlock(selector, tokenMap, indent = "  ") {
+  const entries = Object.entries(tokenMap);
+  if (entries.length === 0) {
+    return "";
+  }
+  const lines = entries.map(([k, v]) => `${indent}${k}: ${v};`);
+  return `${selector} {\n${lines.join("\n")}\n}`;
+}
+
+/**
+ * Create a global theme manager with light/dark --grex-* tokens and built-in
+ * :focus-visible keyboard focus-ring guardrails.
+ *
+ * @param {{
+ *   colors?: Record<string, string>,
+ *   typography?: Record<string, string>,
+ *   spacing?: Record<string, string>,
+ *   radii?: Record<string, string>,
+ *   shadows?: Record<string, string>,
+ *   tokens?: Record<string, string>,
+ *   focusRing?: string,
+ *   modes?: Record<string, Record<string, unknown>>,
+ *   prefersColorScheme?: boolean
+ * }} [config]
+ */
+export function createTheme(config = {}) {
+  const baseTokens = flattenThemeTokens(config);
+  if (!("--grex-focus-ring" in baseTokens)) {
+    baseTokens["--grex-focus-ring"] = DEFAULT_FOCUS_RING;
+  }
+
+  const modeTokens = {};
+  if (config.modes && typeof config.modes === "object") {
+    for (const [modeName, modeSpec] of Object.entries(config.modes)) {
+      if (!/^[a-z0-9_-]+$/i.test(modeName)) {
+        throw new GrexSecurityError(`Invalid theme mode name "${modeName}".`);
+      }
+      const flat =
+        modeSpec &&
+        typeof modeSpec === "object" &&
+        ("colors" in modeSpec || "tokens" in modeSpec || "spacing" in modeSpec)
+          ? flattenThemeTokens(modeSpec)
+          : flattenThemeTokens({ tokens: modeSpec });
+      modeTokens[modeName.toLowerCase()] = flat;
+    }
+  }
+
+  const prefersColorScheme = Boolean(config.prefersColorScheme);
+
+  function compileCss() {
+    const chunks = [];
+    const rootBlock = formatThemeBlock(":root", baseTokens);
+    if (rootBlock) {
+      chunks.push(rootBlock);
+    }
+
+    for (const [modeName, tokens] of Object.entries(modeTokens)) {
+      const modeBlock = formatThemeBlock(`[data-grex-theme="${modeName}"]`, tokens);
+      if (modeBlock) {
+        chunks.push(modeBlock);
+      }
+      if (prefersColorScheme && modeName === "dark") {
+        const inner = formatThemeBlock("  :root", tokens, "    ");
+        if (inner) {
+          chunks.push(`@media (prefers-color-scheme: dark) {\n${inner}\n}`);
+        }
+      }
+    }
+
+    chunks.push(
+      `:focus-visible {\n  outline: var(--grex-focus-ring, ${DEFAULT_FOCUS_RING});\n  outline-offset: 2px;\n}`
+    );
+
+    return chunks.join("\n\n") + "\n";
+  }
+
+  function applyTo(element, mode = null) {
+    if (!element || !element.style) {
+      throw new TypeError("theme.applyTo(element, mode?) requires a DOM element with .style.");
+    }
+    applyTokens(element, baseTokens);
+    if (mode && modeTokens[String(mode).toLowerCase()]) {
+      const cleanMode = String(mode).toLowerCase();
+      if (typeof element.setAttribute === "function") {
+        element.setAttribute("data-grex-theme", cleanMode);
+      }
+      applyTokens(element, modeTokens[cleanMode]);
+    } else if (mode === null && typeof element.removeAttribute === "function") {
+      element.removeAttribute("data-grex-theme");
+    }
+  }
+
+  return {
+    baseTokens: Object.freeze({ ...baseTokens }),
+    modeTokens: Object.freeze({ ...modeTokens }),
+    compileCss,
+    applyTo,
+  };
+}
+
+function normalizeClassStylesInput(styles) {
+  if (!styles || typeof styles !== "object") {
+    throw new TypeError("registerClass(name, styles) requires a styles object.");
+  }
+  const hasBreakpoints = "base" in styles || "tablet" in styles || "mobile" in styles;
+  const normalized = {};
+  const source = hasBreakpoints ? styles : { base: styles };
+
+  for (const [bp, propMap] of Object.entries(source)) {
+    if (!propMap || typeof propMap !== "object") {
+      continue;
+    }
+    const cleanMap = {};
+    for (const [prop, val] of Object.entries(propMap)) {
+      const cleanProp = normalizeStyleProperty(prop);
+      const cleanVal = validateTokenValue(val);
+      cleanMap[cleanProp] = cleanVal;
+    }
+    normalized[bp] = cleanMap;
+  }
+  return normalized;
+}
+
+/**
+ * Create a reusable Bricks-style CSS class manager compiling deterministically
+ * across base, tablet, and mobile breakpoints for /static/grex/.
+ */
+export function createClassManager(options = {}) {
+  const prefix = options.prefix || "grex-c-";
+  const classes = new Map();
+
+  function assertValidClassName(name) {
+    if (typeof name !== "string" || !/^[a-z][a-z0-9_-]*$/i.test(name.trim())) {
+      throw new GrexSecurityError(`Invalid class name "${String(name)}".`);
+    }
+    return name.trim();
+  }
+
+  function registerClass(name, styles) {
+    const clean = assertValidClassName(name);
+    const normalized = normalizeClassStylesInput(styles);
+    classes.set(clean, normalized);
+    return `${prefix}${clean}`;
+  }
+
+  function getClassName(name) {
+    const clean = assertValidClassName(name);
+    if (!classes.has(clean)) {
+      throw new Error(`Unregistered Grex class "${clean}".`);
+    }
+    return `${prefix}${clean}`;
+  }
+
+  function hasClass(name) {
+    return typeof name === "string" && classes.has(name.trim());
+  }
+
+  function unregisterClass(name) {
+    return typeof name === "string" ? classes.delete(name.trim()) : false;
+  }
+
+  function listClasses() {
+    return Array.from(classes.keys());
+  }
+
+  function compileCss(compileOpts = {}) {
+    const breakpoints = { ...DEFAULT_BREAKPOINTS, ...(compileOpts.breakpoints || {}) };
+    const chunks = [];
+    const mediaBuckets = new Map();
+
+    for (const [name, deviceMap] of classes.entries()) {
+      const selector = `.${prefix}${name}`;
+      for (const [bp, propMap] of Object.entries(deviceMap)) {
+        if (!(bp in breakpoints)) {
+          throw new GrexSecurityError(`Unknown breakpoint "${bp}" in class "${name}".`);
+        }
+        const entries = Object.entries(propMap);
+        if (entries.length === 0) {
+          continue;
+        }
+        const decls = entries.map(([k, v]) => `  ${k}: ${v};`);
+        const query = breakpoints[bp];
+        if (!query) {
+          chunks.push(`${selector} {\n${decls.join("\n")}\n}`);
+        } else {
+          if (!mediaBuckets.has(query)) {
+            mediaBuckets.set(query, []);
+          }
+          const indented = decls.map((line) => `  ${line}`);
+          mediaBuckets.get(query).push(`  ${selector} {\n${indented.join("\n")}\n  }`);
+        }
+      }
+    }
+
+    for (const [query, rules] of mediaBuckets.entries()) {
+      chunks.push(`@media ${query} {\n${rules.join("\n")}\n}`);
+    }
+
+    return chunks.join("\n\n") + (chunks.length > 0 ? "\n" : "");
+  }
+
+  return {
+    registerClass,
+    getClassName,
+    hasClass,
+    unregisterClass,
+    listClasses,
+    compileCss,
+  };
+}
+
+// --- a11y.js ---
+/**
+ * Grex JS v0.4 / v1.0.0 Built-In Accessibility Audit & WCAG AA Guardrails.
+ * Zero external dependencies. Validates contrast ratios, Image alt text,
+ * form <label> associations, heading hierarchy, and focus indicators.
+ */
+
+/**
+ * Parse a hex (#RGB, #RRGGBB) or rgb()/rgba() color into { r, g, b } (0..255).
+ * Returns null for CSS variables or unsupported strings.
+ * @param {unknown} color
+ * @returns {{ r: number, g: number, b: number } | null}
+ */
+export function parseCssColor(color) {
+  if (typeof color !== "string") {
+    return null;
+  }
+  const s = color.trim();
+  const hex3 = /^#([0-9a-f]{3})$/i.exec(s);
+  if (hex3) {
+    const [r, g, b] = hex3[1].split("").map((ch) => Number.parseInt(ch + ch, 16));
+    return { r, g, b };
+  }
+  const hex6 = /^#([0-9a-f]{6})$/i.exec(s);
+  if (hex6) {
+    const h = hex6[1];
+    return {
+      r: Number.parseInt(h.slice(0, 2), 16),
+      g: Number.parseInt(h.slice(2, 4), 16),
+      b: Number.parseInt(h.slice(4, 6), 16),
+    };
+  }
+  const rgbMatch = /^rgba?\(\s*(\d{1,3})\s*,\s*(\d{1,3})\s*,\s*(\d{1,3})(?:\s*,\s*[\d.]+)?\s*\)$/i.exec(s);
+  if (rgbMatch) {
+    const r = Math.min(255, Number(rgbMatch[1]));
+    const g = Math.min(255, Number(rgbMatch[2]));
+    const b = Math.min(255, Number(rgbMatch[3]));
+    return { r, g, b };
+  }
+  return null;
+}
+
+function linearizeChannel(val255) {
+  const c = val255 / 255;
+  return c <= 0.03928 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4;
+}
+
+function relativeLuminance({ r, g, b }) {
+  return 0.2126 * linearizeChannel(r) + 0.7152 * linearizeChannel(g) + 0.0722 * linearizeChannel(b);
+}
+
+/**
+ * Compute WCAG 2.1 contrast ratio between two CSS colors (returns 1..21, or null if unparseable).
+ * @param {string} fgColor
+ * @param {string} bgColor
+ * @returns {number | null}
+ */
+export function computeContrastRatio(fgColor, bgColor) {
+  const fg = parseCssColor(fgColor);
+  const bg = parseCssColor(bgColor);
+  if (!fg || !bg) {
+    return null;
+  }
+  const l1 = relativeLuminance(fg);
+  const l2 = relativeLuminance(bg);
+  const lighter = Math.max(l1, l2);
+  const darker = Math.min(l1, l2);
+  return Number(((lighter + 0.05) / (darker + 0.05)).toFixed(2));
+}
+
+function isLargeTextStyle(baseStyle = {}) {
+  const sizeMatch = /^(\d+(?:\.\d+)?)px$/i.exec(String(baseStyle.fontSize || baseStyle["font-size"] || ""));
+  if (!sizeMatch) {
+    return false;
+  }
+  const px = Number(sizeMatch[1]);
+  const weight = baseStyle.fontWeight || baseStyle["font-weight"];
+  const isBold = weight === "bold" || Number(weight) >= 700;
+  return px >= 24 || (isBold && px >= 18.66);
+}
+
+function getTreeNodeText(node) {
+  if (!node || typeof node !== "object") {
+    return "";
+  }
+  const props = node.props || {};
+  if (typeof props.text === "string") {
+    return props.text;
+  }
+  if (typeof node.text === "string") {
+    return node.text;
+  }
+  if (typeof props.label === "string") {
+    return props.label;
+  }
+  if (node.attrs && typeof node.attrs["aria-label"] === "string") {
+    return node.attrs["aria-label"];
+  }
+  if (Array.isArray(node.children)) {
+    return node.children
+      .map((c) => (typeof c === "string" ? c : getTreeNodeText(c)))
+      .join("")
+      .trim();
+  }
+  return "";
+}
+
+/**
+ * Audit a declarative GrexElementNode JSON tree for WCAG AA contrast,
+ * Image alt text, form labels, heading hierarchy, and focus indicators.
+ *
+ * @param {object | Array<object>} tree
+ * @param {{ defaultBg?: string }} [options]
+ * @returns {{ ok: boolean, issues: Array<{ severity: "error" | "warning", code: string, nodeId?: string, message: string }> }}
+ */
+export function auditAccessibility(tree, options = {}) {
+  const issues = [];
+  const list = Array.isArray(tree) ? tree : [tree];
+  let lastHeadingLevel = 0;
+  let h1Count = 0;
+
+  const visit = (node, inheritedBg) => {
+    if (!node || typeof node !== "object") {
+      return;
+    }
+    const nodeId = typeof node.id === "string" ? node.id : undefined;
+    const props = node.props || {};
+    const attrs = node.attrs || {};
+    const baseStyle = (node.styles && (node.styles.base || node.styles)) || {};
+
+    const bgColor = baseStyle.backgroundColor || baseStyle["background-color"] || baseStyle.background || inheritedBg;
+    const fgColor = baseStyle.color;
+
+    if (fgColor && bgColor) {
+      const ratio = computeContrastRatio(fgColor, bgColor);
+      if (ratio !== null) {
+        const minRatio = isLargeTextStyle(baseStyle) ? 3.0 : 4.5;
+        if (ratio < minRatio) {
+          issues.push({
+            severity: "error",
+            code: "GREX-A11Y-001",
+            nodeId,
+            message: `Contrast ratio ${ratio}:1 (${fgColor} on ${bgColor}) is below WCAG AA minimum ${minRatio}:1.`,
+          });
+        }
+      }
+    }
+
+    if (baseStyle.outline === "none" || baseStyle.outline === 0 || baseStyle.outline === "0") {
+      issues.push({
+        severity: "error",
+        code: "GREX-A11Y-005",
+        nodeId,
+        message: "Removing focus outline without a replacement focus indicator violates keyboard accessibility.",
+      });
+    }
+
+    if (node.type === "Image") {
+      const hasAlt = typeof props.alt === "string" && props.alt.trim() !== "";
+      if (!hasAlt && props.decorative !== true) {
+        issues.push({
+          severity: "error",
+          code: "GREX-A11Y-002",
+          nodeId,
+          message: "Image must provide descriptive alt text or set decorative: true.",
+        });
+      }
+    }
+
+    if (node.type === "Input" || node.type === "Select") {
+      const isHidden = String(props.type || "").toLowerCase() === "hidden";
+      const hasLabel =
+        (typeof props.label === "string" && props.label.trim() !== "") ||
+        (typeof attrs["aria-label"] === "string" && attrs["aria-label"].trim() !== "") ||
+        (typeof attrs["aria-labelledby"] === "string" && attrs["aria-labelledby"].trim() !== "");
+      if (!isHidden && !hasLabel) {
+        issues.push({
+          severity: "error",
+          code: "GREX-A11Y-003",
+          nodeId,
+          message: `${node.type} must provide a label, aria-label, or aria-labelledby.`,
+        });
+      }
+    }
+
+    if (node.type === "Heading") {
+      const level = props.level === undefined ? 2 : Number(props.level);
+      if (level === 1) {
+        h1Count += 1;
+        if (h1Count > 1) {
+          issues.push({
+            severity: "warning",
+            code: "GREX-A11Y-004",
+            nodeId,
+            message: "Multiple <h1> headings detected; prefer a single primary <h1> per page.",
+          });
+        }
+      }
+      if (lastHeadingLevel > 0 && level > lastHeadingLevel + 1) {
+        issues.push({
+          severity: "error",
+          code: "GREX-A11Y-004",
+          nodeId,
+          message: `Skipped heading level from <h${lastHeadingLevel}> to <h${level}>.`,
+        });
+      }
+      if (level >= 1 && level <= 6) {
+        lastHeadingLevel = level;
+      }
+    }
+
+    if (node.type === "Button" || node.type === "Link") {
+      const accessibleName = getTreeNodeText(node);
+      if (accessibleName === "") {
+        issues.push({
+          severity: "error",
+          code: "GREX-A11Y-005",
+          nodeId,
+          message: `${node.type} must have visible text or an aria-label.`,
+        });
+      }
+    }
+
+    if (Array.isArray(node.children)) {
+      for (const child of node.children) {
+        visit(child, bgColor);
+      }
+    }
+    if (Array.isArray(props.tabs)) {
+      for (const tab of props.tabs) {
+        if (tab && tab.content) {
+          const contentArr = Array.isArray(tab.content) ? tab.content : [tab.content];
+          contentArr.forEach((c) => visit(c, bgColor));
+        }
+      }
+    }
+    if (Array.isArray(props.items)) {
+      for (const item of props.items) {
+        if (item && item.content) {
+          const contentArr = Array.isArray(item.content) ? item.content : [item.content];
+          contentArr.forEach((c) => visit(c, bgColor));
+        }
+      }
+    }
+  };
+
+  for (const rootNode of list) {
+    visit(rootNode, options.defaultBg || null);
+  }
+
+  return {
+    ok: issues.every((i) => i.severity !== "error"),
+    issues,
+  };
+}
+
+function hasWrappingLabel(el) {
+  let curr = el.parentNode;
+  while (curr) {
+    if (curr.localName === "label") {
+      return true;
+    }
+    curr = curr.parentNode;
+  }
+  return false;
+}
+
+/**
+ * Audit a rendered DOM tree for accessibility compliance (alt text, form labels,
+ * heading hierarchy, and interactive accessible names).
+ *
+ * @param {Document | Element} root
+ * @returns {{ ok: boolean, issues: Array<{ severity: "error" | "warning", code: string, nodeId?: string, message: string }> }}
+ */
+export function auditDom(root) {
+  if (!root || typeof root.querySelectorAll !== "function") {
+    throw new TypeError("auditDom(root) requires a DOM Document or Element.");
+  }
+
+  const issues = [];
+  const allNodes = Array.from(root.querySelectorAll("*"));
+  let lastHeadingLevel = 0;
+  let h1Count = 0;
+
+  for (const el of allNodes) {
+    const tag = el.localName || (el.tagName && el.tagName.toLowerCase()) || "";
+    const nodeId = el.getAttribute("data-grex-id") || el.getAttribute("id") || undefined;
+
+    if (tag === "img") {
+      const alt = el.getAttribute("alt");
+      const hidden = el.getAttribute("aria-hidden") === "true";
+      if ((alt === null || alt.trim() === "") && !hidden) {
+        issues.push({
+          severity: "error",
+          code: "GREX-A11Y-002",
+          nodeId,
+          message: "<img> element must have descriptive alt text or aria-hidden=\"true\".",
+        });
+      }
+    }
+
+    if (tag === "input" || tag === "select" || tag === "textarea") {
+      const type = (el.getAttribute("type") || "text").toLowerCase();
+      if (type !== "hidden") {
+        const id = el.getAttribute("id");
+        const hasForLabel = id ? Boolean(root.querySelector(`label[for="${id}"]`)) : false;
+        const hasAria =
+          Boolean(el.getAttribute("aria-label")) || Boolean(el.getAttribute("aria-labelledby"));
+        if (!hasForLabel && !hasWrappingLabel(el) && !hasAria) {
+          issues.push({
+            severity: "error",
+            code: "GREX-A11Y-003",
+            nodeId,
+            message: `<${tag}> element is missing an associated <label> or aria-label.`,
+          });
+        }
+      }
+    }
+
+    if (/^h[1-6]$/.test(tag)) {
+      const level = Number(tag.slice(1));
+      if (level === 1) {
+        h1Count += 1;
+        if (h1Count > 1) {
+          issues.push({
+            severity: "warning",
+            code: "GREX-A11Y-004",
+            nodeId,
+            message: "Multiple <h1> headings detected in DOM.",
+          });
+        }
+      }
+      if (lastHeadingLevel > 0 && level > lastHeadingLevel + 1) {
+        issues.push({
+          severity: "error",
+          code: "GREX-A11Y-004",
+          nodeId,
+          message: `Skipped heading level from <h${lastHeadingLevel}> to <h${level}>.`,
+        });
+      }
+      lastHeadingLevel = level;
+    }
+
+    if (tag === "button" || tag === "a") {
+      const text = (el.textContent || "").trim();
+      const ariaLabel = el.getAttribute("aria-label") || el.getAttribute("aria-labelledby");
+      const labelledChild = el.querySelector("[aria-label], img[alt]");
+      if (!text && !ariaLabel && !labelledChild) {
+        issues.push({
+          severity: "error",
+          code: "GREX-A11Y-005",
+          nodeId,
+          message: `<${tag}> element has no accessible name.`,
+        });
+      }
+    }
+  }
+
+  return {
+    ok: issues.every((i) => i.severity !== "error"),
+    issues,
+  };
+}
+
+// --- catalog.js ---
+/**
+ * Grex JS v0.4 / v1.0.0 Machine-Readable Element Catalog (grex.elements.json) & Validator.
+ * Enables Grex Builder, GrabLab CMS, and Groxy AI (grab mcp + GRAB-DESIGN-SYSTEM.md)
+ * to compose validated pages with zero hallucinated props or wrapper <div>s.
+ */
+
+
+const SUPPORTED_STYLE_LIST = Object.freeze(
+  Array.from(new Set(Object.values(ALLOWED_STYLE_PROPERTIES)))
+);
+
+const CATALOG_ELEMENTS = Object.freeze({
+  Section: {
+    name: "Section",
+    category: "layout",
+    defaultTag: "section",
+    allowedTags: ["section", "header", "footer", "main", "aside"],
+    acceptsChildren: true,
+    props: {
+      label: { type: "string", required: false },
+      labelledBy: { type: "string", required: false },
+    },
+    a11yDefaults: { landmark: true },
+    securityRules: ["no-wrapper-div", "csp-safe"],
+  },
+  Container: {
+    name: "Container",
+    category: "layout",
+    defaultTag: "section",
+    allowedTags: ["section", "article", "main", "header", "footer"],
+    acceptsChildren: true,
+    props: {
+      maxWidth: { type: "string", required: false },
+      label: { type: "string", required: false },
+      labelledBy: { type: "string", required: false },
+    },
+    a11yDefaults: { singleNodeMaxWidth: true },
+    securityRules: ["no-wrapper-div"],
+  },
+  Grid: {
+    name: "Grid",
+    category: "layout",
+    defaultTag: "section",
+    allowedTags: ["section", "ul", "ol", "article", "nav"],
+    acceptsChildren: true,
+    props: {
+      columns: { type: "string", required: false },
+      gap: { type: "string", required: false },
+      align: { type: "string", required: false },
+      justify: { type: "string", required: false },
+      label: { type: "string", required: false },
+    },
+    a11yDefaults: { cssGridOnRoot: true },
+    securityRules: ["no-wrapper-div"],
+  },
+  Stack: {
+    name: "Stack",
+    category: "layout",
+    defaultTag: "section",
+    allowedTags: ["section", "header", "nav", "footer", "ul", "ol", "article"],
+    acceptsChildren: true,
+    props: {
+      direction: { type: "string", enum: ["column", "row"], default: "column" },
+      wrap: { type: "string", required: false },
+      gap: { type: "string", required: false },
+      align: { type: "string", required: false },
+      justify: { type: "string", required: false },
+      label: { type: "string", required: false },
+    },
+    a11yDefaults: { flexOnRoot: true },
+    securityRules: ["no-wrapper-div"],
+  },
+  Card: {
+    name: "Card",
+    category: "layout",
+    defaultTag: "article",
+    allowedTags: ["article", "section", "aside"],
+    acceptsChildren: true,
+    props: {
+      elevated: { type: "boolean", default: false },
+      label: { type: "string", required: false },
+    },
+    a11yDefaults: { semanticArticle: true },
+    securityRules: ["no-wrapper-div"],
+  },
+  Heading: {
+    name: "Heading",
+    category: "typography",
+    defaultTag: "h2",
+    allowedTags: ["h1", "h2", "h3", "h4", "h5", "h6"],
+    acceptsChildren: false,
+    props: {
+      level: { type: "integer", min: 1, max: 6, default: 2 },
+      text: { type: "string", required: true },
+    },
+    a11yDefaults: { validHeadingLevel: true },
+    securityRules: ["textContent-only"],
+  },
+  Text: {
+    name: "Text",
+    category: "typography",
+    defaultTag: "p",
+    allowedTags: ["p", "span", "small", "strong", "em", "blockquote", "time", "code"],
+    acceptsChildren: false,
+    props: {
+      text: { type: "string", required: true },
+      dateTime: { type: "string", required: false },
+    },
+    a11yDefaults: { preserveExactGrabDecimalString: true },
+    securityRules: ["textContent-only", "no-float-coercion"],
+  },
+  RichText: {
+    name: "RichText",
+    category: "typography",
+    defaultTag: "p",
+    allowedTags: ["p", "article", "section", "span"],
+    acceptsChildren: false,
+    props: {
+      nodes: { type: "array", required: false },
+      html: { type: "string", required: false },
+      text: { type: "string", required: false },
+    },
+    a11yDefaults: { safeExternalLinks: true },
+    securityRules: ["zero-innerHTML", "inline-tag-allowlist"],
+  },
+  Link: {
+    name: "Link",
+    category: "action",
+    defaultTag: "a",
+    allowedTags: ["a"],
+    acceptsChildren: true,
+    props: {
+      href: { type: "url", required: true },
+      text: { type: "string", required: false },
+      target: { type: "string", required: false },
+      rel: { type: "string", required: false },
+      external: { type: "boolean", default: false },
+      label: { type: "string", required: false },
+    },
+    a11yDefaults: { relNoopenerOnExternal: true },
+    securityRules: ["url-protocol-check"],
+  },
+  Button: {
+    name: "Button",
+    category: "action",
+    defaultTag: "button",
+    allowedTags: ["button"],
+    acceptsChildren: false,
+    props: {
+      text: { type: "string", required: false },
+      type: { type: "string", enum: ["button", "submit", "reset"], default: "button" },
+      disabled: { type: "boolean", default: false },
+      pressed: { type: "boolean", required: false },
+      expanded: { type: "boolean", required: false },
+      label: { type: "string", required: false },
+      onClick: { type: "function", required: false },
+    },
+    a11yDefaults: { safeDefaultTypeButton: true },
+    securityRules: ["addEventListener-only", "no-inline-onclick"],
+  },
+  Image: {
+    name: "Image",
+    category: "media",
+    defaultTag: "img",
+    allowedTags: ["img"],
+    acceptsChildren: false,
+    props: {
+      src: { type: "url", required: true },
+      alt: { type: "string", required: false },
+      decorative: { type: "boolean", default: false },
+      width: { type: "number|string", required: false },
+      height: { type: "number|string", required: false },
+      srcset: { type: "string", required: false },
+      sizes: { type: "string", required: false },
+      loading: { type: "string", enum: ["lazy", "eager"], default: "lazy" },
+      decoding: { type: "string", enum: ["async", "sync", "auto"], default: "async" },
+    },
+    a11yDefaults: { requireAltOrDecorative: true, clsDimensionsRecommended: true },
+    securityRules: ["url-protocol-check", "srcset-url-check"],
+  },
+  Icon: {
+    name: "Icon",
+    category: "media",
+    defaultTag: "svg",
+    allowedTags: ["svg"],
+    acceptsChildren: false,
+    props: {
+      viewBox: { type: "string", default: "0 0 24 24" },
+      size: { type: "number|string", default: "24" },
+      fill: { type: "string", default: "none" },
+      paths: { type: "array", required: false },
+      symbolId: { type: "string", required: false },
+      label: { type: "string", required: false },
+      decorative: { type: "boolean", default: true },
+    },
+    a11yDefaults: { ariaHiddenWhenDecorative: true, roleImgWithLabel: true },
+    securityRules: ["zero-innerHTML", "svg-createElementNS-allowlist"],
+  },
+  Form: {
+    name: "Form",
+    category: "interactive",
+    defaultTag: "form",
+    allowedTags: ["form"],
+    acceptsChildren: true,
+    props: {
+      action: { type: "url", required: false },
+      method: { type: "string", enum: ["post", "get"], default: "post" },
+      csrfToken: { type: "string|signal", required: false },
+      csrfHeader: { type: "string", default: "X-CSRF-Token" },
+      csrfField: { type: "string", required: false },
+      requireCsrf: { type: "boolean", default: true },
+      onSubmit: { type: "function", required: false },
+    },
+    a11yDefaults: { ariaBusyOnSubmit: true, doubleSubmitGuard: true },
+    securityRules: ["url-protocol-check", "csrf-enforcement"],
+  },
+  Input: {
+    name: "Input",
+    category: "interactive",
+    defaultTag: "label",
+    allowedTags: ["label", "input", "textarea"],
+    acceptsChildren: false,
+    props: {
+      name: { type: "string", required: false },
+      label: { type: "string", required: false },
+      type: {
+        type: "string",
+        enum: ["text", "email", "password", "search", "tel", "url", "number", "hidden", "textarea"],
+        default: "text",
+      },
+      value: { type: "string|signal", required: false },
+      grabType: { type: "string", enum: ["GrabDecimal", "GrabInteger"], required: false },
+      required: { type: "boolean|string", default: false },
+      minLength: { type: "number", required: false },
+      maxLength: { type: "number", required: false },
+      pattern: { type: "string", required: false },
+      placeholder: { type: "string", required: false },
+      disabled: { type: "boolean", default: false },
+      bare: { type: "boolean", default: false },
+    },
+    a11yDefaults: { labelForAssociation: true, roleAlertErrors: true },
+    securityRules: ["no-float-coercion"],
+  },
+  Select: {
+    name: "Select",
+    category: "interactive",
+    defaultTag: "label",
+    allowedTags: ["label", "select"],
+    acceptsChildren: false,
+    props: {
+      name: { type: "string", required: false },
+      label: { type: "string", required: false },
+      value: { type: "string|signal", required: false },
+      options: { type: "array", required: true },
+      required: { type: "boolean", default: false },
+      disabled: { type: "boolean", default: false },
+      bare: { type: "boolean", default: false },
+    },
+    a11yDefaults: { labelForAssociation: true },
+    securityRules: ["textContent-only"],
+  },
+  Tabs: {
+    name: "Tabs",
+    category: "interactive",
+    defaultTag: "section",
+    allowedTags: ["section"],
+    acceptsChildren: false,
+    props: {
+      label: { type: "string", required: false },
+      activeId: { type: "string|signal", required: false },
+      tabs: { type: "array", required: true },
+    },
+    a11yDefaults: { roleTablist: true, arrowHomeEndKeyboardNav: true, rovingTabindex: true },
+    securityRules: ["no-wrapper-div"],
+  },
+  Accordion: {
+    name: "Accordion",
+    category: "interactive",
+    defaultTag: "section",
+    allowedTags: ["section"],
+    acceptsChildren: false,
+    props: {
+      items: { type: "array", required: true },
+      singleOpen: { type: "boolean", default: false },
+      openIds: { type: "array|signal", required: false },
+    },
+    a11yDefaults: { nativeDetailsSummary: true },
+    securityRules: ["no-wrapper-div"],
+  },
+  Modal: {
+    name: "Modal",
+    category: "interactive",
+    defaultTag: "dialog",
+    allowedTags: ["dialog"],
+    acceptsChildren: true,
+    props: {
+      open: { type: "boolean|signal", required: true },
+      title: { type: "string", required: false },
+      onClose: { type: "function", required: false },
+    },
+    a11yDefaults: { nativeDialogShowModal: true, focusTrap: true, escapeDismiss: true, focusRestore: true },
+    securityRules: ["no-wrapper-div"],
+  },
+  Nav: {
+    name: "Nav",
+    category: "interactive",
+    defaultTag: "nav",
+    allowedTags: ["nav"],
+    acceptsChildren: false,
+    props: {
+      label: { type: "string", required: false },
+      items: { type: "array", required: true },
+      activePath: { type: "string|signal", required: false },
+      collapsible: { type: "boolean", default: false },
+      toggleLabel: { type: "string", default: "Menu" },
+      open: { type: "boolean|signal", required: false },
+    },
+    a11yDefaults: { ariaCurrentPage: true, ariaExpandedToggle: true },
+    securityRules: ["url-protocol-check", "relNoopenerOnExternal"],
+  },
+  ForEach: {
+    name: "ForEach",
+    category: "repeater",
+    defaultTag: "ul",
+    allowedTags: ["ul", "ol", "section", "tbody"],
+    acceptsChildren: false,
+    props: {
+      parent: { type: "object", required: false },
+      items: { type: "array|signal", required: true },
+      key: { type: "function", required: true },
+      render: { type: "function", required: true },
+      empty: { type: "function", required: false },
+    },
+    a11yDefaults: { stableKeyIdentity: true },
+    securityRules: ["auto-dispose-removed"],
+  },
+});
+
+/**
+ * Export the deterministic v1.0.0 machine-readable element catalog (grex.elements.json)
+ * describing all 20 Grex JS elements for Grex Builder, GrabLab CMS, and Groxy AI.
+ */
+export function exportElementCatalog() {
+  const elements = {};
+  for (const [key, def] of Object.entries(CATALOG_ELEMENTS)) {
+    elements[key] = {
+      ...def,
+      supportedStyleProps: SUPPORTED_STYLE_LIST,
+    };
+  }
+  return {
+    schemaVersion: "1.0.0",
+    framework: "grex-js",
+    elementCount: Object.keys(elements).length,
+    elements,
+  };
+}
+
+/**
+ * Validate a declarative GrexElementNode JSON object (and its children) against
+ * the grex.elements.json catalog, catching hallucinated types, disallowed tags,
+ * unknown props, unsafe URLs/attrs, and unsafe CSS properties before rendering.
+ *
+ * @param {object} node
+ * @param {{ strictProps?: boolean }} [options]
+ * @returns {{ valid: true }}
+ */
+export function validateElementNode(node, options = {}) {
+  const strictProps = options.strictProps !== false;
+  if (!node || typeof node !== "object") {
+    throw new GrexSecurityError("Element node must be a non-null object.");
+  }
+
+  const def = CATALOG_ELEMENTS[node.type];
+  if (!def) {
+    throw new GrexSecurityError(`Unknown Grex element type "${String(node.type)}".`);
+  }
+
+  if (node.tag !== undefined) {
+    const cleanTag = String(node.tag).trim().toLowerCase();
+    if (!def.allowedTags.includes(cleanTag)) {
+      throw new GrexSecurityError(
+        `Tag "${cleanTag}" is not allowed on ${def.name} (allowed: ${def.allowedTags.join(", ")}).`
+      );
+    }
+  }
+
+  const props = node.props || {};
+  if (typeof props !== "object") {
+    throw new GrexSecurityError(`${def.name}.props must be an object.`);
+  }
+
+  if (strictProps) {
+    for (const key of Object.keys(props)) {
+      if (!(key in def.props)) {
+        throw new GrexSecurityError(`Unknown prop "${key}" on ${def.name} element.`);
+      }
+    }
+  }
+
+  if (def.name === "Heading" && props.level !== undefined) {
+    if (!Number.isInteger(props.level) || props.level < 1 || props.level > 6) {
+      throw new GrexSecurityError(`Heading level must be an integer 1..6; got "${String(props.level)}".`);
+    }
+  }
+
+  for (const urlProp of ["href", "src", "action"]) {
+    if (typeof props[urlProp] === "string" && !isSafeUrl(props[urlProp])) {
+      throw new GrexSecurityError(`Unsafe URL on ${def.name}.props.${urlProp}.`);
+    }
+  }
+
+  if (node.attrs && typeof node.attrs === "object") {
+    for (const [k, v] of Object.entries(node.attrs)) {
+      sanitizeAttributeValue(k, v);
+    }
+  }
+
+  if (node.styles && typeof node.styles === "object") {
+    const bpMap =
+      "base" in node.styles || "tablet" in node.styles || "mobile" in node.styles
+        ? node.styles
+        : { base: node.styles };
+    for (const styleObj of Object.values(bpMap)) {
+      if (styleObj && typeof styleObj === "object") {
+        for (const [prop, val] of Object.entries(styleObj)) {
+          normalizeStyleProperty(prop);
+          validateTokenValue(val);
+        }
+      }
+    }
+  }
+
+  if (Array.isArray(node.children)) {
+    for (const child of node.children) {
+      if (child && typeof child === "object" && "type" in child) {
+        validateElementNode(child, options);
+      }
+    }
+  }
+
+  return { valid: true };
 }
 
 // --- bridge.js ---

@@ -303,6 +303,97 @@ GUIDES = [
             'const placeOrder = useMutation(api, "/api/orders", { invalidates: ["catalog"] });'
         ),
     },
+    {
+        "version": "v0.4.0",
+        "date": "2026-11-13",
+        "title": "Grex JS v0.4.0 — Accessibility, Global Theme/Class Manager & grab mcp Catalog",
+        "subtitle": "Plain-English Walkthrough of Built-In WCAG AA Guardrails, Light/Dark Themes, Reusable CSS Classes & AI Discovery",
+        "lead": (
+            "Grex JS v0.4.0 completes the creator and AI safety layer: global light/dark design tokens via createTheme, "
+            "reusable responsive styles via createClassManager, automated WCAG AA contrast and semantic accessibility checks "
+            "via auditAccessibility and auditDom, and the machine-readable grex.elements.json catalog for Groxy AI and Grex Builder."
+        ),
+        "sections": [
+            (
+                "badge-blue",
+                "1. Theme & Class Manager",
+                "Global Design Tokens & Reusable Styles",
+                [
+                    "createTheme compiles :root tokens, [data-grex-theme] mode overrides, optional dark-mode media queries, and a built-in :focus-visible keyboard ring.",
+                    "applyTo(element, mode) updates CSS custom properties live in browser memory without restarting Grisp.",
+                    "createClassManager lets builders share responsive styles across elements via .grex-c-* classes while blocking unsafe CSS properties.",
+                ],
+            ),
+            (
+                "badge-green",
+                "2. Accessibility Guardrails",
+                "auditAccessibility() & auditDom()",
+                [
+                    "Computes WCAG 2.1 AA contrast ratios (>= 4.5:1 normal text, >= 3.0:1 large text) with parseCssColor and computeContrastRatio.",
+                    "Flags missing Image alt attributes (GREX-A11Y-002), unlabelled inputs (GREX-A11Y-003), skipped headings (GREX-A11Y-004), and hidden focus rings (GREX-A11Y-005).",
+                ],
+            ),
+            (
+                "badge-amber",
+                "3. AI & Builder Discovery",
+                "grex.elements.json & validateElementNode()",
+                [
+                    "Exports every allowed Grex JS element, HTML5 semantic tag list, prop schema, accessibility default, and CSS allowlist.",
+                    "validateElementNode() rejects unknown component names, disallowed tags (like wrapper divs), unknown props, and unsafe URLs before rendering.",
+                ],
+            ),
+        ],
+        "snippet": (
+            'const theme = createTheme({ colors: { accent: "#0284c7" }, modes: { dark: { surface: "#0f172a" } } });\n'
+            'const report = auditAccessibility(pageTree);\n'
+            'validateElementNode(pageTree);'
+        ),
+    },
+    {
+        "version": "v1.0.0",
+        "date": "2026-11-13",
+        "title": "Grex JS v1.0.0 — Production Release & Schema Stability Freeze",
+        "subtitle": "Plain-English Guide to the Complete Zero-Dependency GRAB + Grisp Frontend Runtime & 20-Element Catalog",
+        "lead": (
+            "Grex JS v1.0.0 freezes the v1.x public API, JSON element schema (grex.elements.json), and browser runtime bundles. "
+            "Built specifically for GRAB 1.0, Grisp, Grex Builder, GrabLab CMS, and Groxy AI, every element outputs clean semantic "
+            "HTML5 with zero wrapper divs, zero eval() or innerHTML, and instant CSS updates via /static/grex/ and server.asset."
+        ),
+        "sections": [
+            (
+                "badge-green",
+                "1. Complete Platform Stack",
+                "Reactive Core + 20 Native Semantic Elements",
+                [
+                    "Fine-grained signals (signal, computed, effect, batch) preserving exact GRAB GrabDecimal and GrabInteger base-10 wire strings.",
+                    "12 layout/typography/media elements, 7 accessible interactive/form widgets, keyed ForEach repeaters, and origin-checked GrexPreviewBridge.",
+                ],
+            ),
+            (
+                "badge-blue",
+                "2. GRAB & Grisp Native",
+                "Fluid Sync Without Restarts",
+                [
+                    "Live Split-Screen Preview via signals and --grex-* custom properties in browser memory.",
+                    "Instant Publish Styles written strictly to /static/grex/ and cached with GRAB server.asset ?v=hash.",
+                    "Instant Publish Data via createGrabClient, useQuery, useMutation, and AbortController.",
+                ],
+            ),
+            (
+                "badge-amber",
+                "3. AI, CMS & Accessibility Built In",
+                "Safe by Default for Creators & Groxy AI",
+                [
+                    "Global createTheme & createClassManager, automated WCAG AA auditAccessibility and auditDom checks, and grex.elements.json schema validation.",
+                ],
+            ),
+        ],
+        "snippet": (
+            'import { createTheme, renderNode, auditAccessibility, validateElementNode } from "/static/grex/grex.js";\n'
+            'validateElementNode(pageTree);\n'
+            'if (auditAccessibility(pageTree).ok) renderNode(pageTree, { document });'
+        ),
+    },
 ]
 
 

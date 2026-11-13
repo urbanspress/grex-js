@@ -7,8 +7,9 @@
 import fs from "node:fs";
 import path from "node:path";
 import { compileElementStyles, compileTokenCss } from "../src/tokens.js";
+import { exportElementCatalog } from "../src/catalog.js";
 
-const VERSION = "v0.3.0";
+const VERSION = "v1.0.0";
 const ROOT = path.resolve(".");
 const SRC_DIR = path.join(ROOT, "src");
 const DIST_DIR = path.join(ROOT, "dist");
@@ -22,6 +23,9 @@ const MODULE_ORDER = [
   "elements.js",
   "interactive.js",
   "data.js",
+  "theme.js",
+  "a11y.js",
+  "catalog.js",
   "bridge.js",
 ];
 
@@ -97,12 +101,14 @@ fs.mkdirSync(EXAMPLE_GREX_DIR, { recursive: true });
 const bundle = buildBundle();
 const minified = `/* Grex JS ${VERSION} | MIT */\n${compactJs(bundle)}`;
 const tokensCss = buildDefaultTokensCss();
+const elementCatalogJson = `${JSON.stringify(exportElementCatalog(), null, 2)}\n`;
 
 fs.writeFileSync(path.join(DIST_DIR, `grex-js-${VERSION}.js`), bundle, "utf8");
 fs.writeFileSync(path.join(DIST_DIR, `grex-js-${VERSION}.min.js`), minified, "utf8");
 fs.writeFileSync(path.join(DIST_DIR, `grex-tokens-${VERSION}.css`), tokensCss, "utf8");
+fs.writeFileSync(path.join(ROOT, "grex.elements.json"), elementCatalogJson, "utf8");
 
 fs.writeFileSync(path.join(EXAMPLE_GREX_DIR, "grex.js"), bundle, "utf8");
 fs.writeFileSync(path.join(EXAMPLE_GREX_DIR, "tokens.css"), tokensCss, "utf8");
 
-console.log(`Built Grex JS ${VERSION} assets in dist/ and examples/grisp-basic/public/grex/`);
+console.log(`Built Grex JS ${VERSION} assets in dist/, grex.elements.json, and examples/grisp-basic/public/grex/`);

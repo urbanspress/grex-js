@@ -1,0 +1,162 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Grex JS v0.4.0 — Accessibility, Global Theme/Class Manager & grab mcp Catalog</title>
+  <style>
+:root {
+  --ink: #0f172a;
+  --muted: #475569;
+  --line: #cbd5e1;
+  --bg-page: #f8fafc;
+  --surface: #ffffff;
+  --teal: #0d9488;
+  --teal-soft: #ccfbf1;
+  --blue: #0284c7;
+  --blue-soft: #e0f2fe;
+  --green: #15803d;
+  --green-soft: #dcfce7;
+  --amber: #b45309;
+  --amber-soft: #fef3c7;
+}
+* { box-sizing: border-box; }
+@page { size: A4; margin: 12mm 14mm 14mm 14mm; }
+body {
+  margin: 0;
+  padding: 0;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  color: var(--ink);
+  background: var(--bg-page);
+  line-height: 1.55;
+  font-size: 13.5px;
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+}
+.header-hero {
+  background: linear-gradient(135deg, #0f172a 0%, #1e293b 60%, #0d9488 100%);
+  color: #ffffff;
+  border-radius: 12px;
+  padding: 24px 28px;
+  margin-bottom: 18px;
+}
+.header-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+.version-pill {
+  background: #38bdf8;
+  color: #0f172a;
+  font-weight: 800;
+  font-size: 12px;
+  padding: 4px 12px;
+  border-radius: 999px;
+}
+.date-tag { font-size: 11.5px; color: #cbd5e1; }
+h1 { margin: 0 0 6px 0; font-size: 25px; color: #ffffff; }
+.subtitle { font-size: 14.5px; color: #5eead4; font-weight: 600; margin: 0 0 10px 0; }
+.lead-p { margin: 0; color: #e2e8f0; font-size: 13.5px; }
+.card {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 16px 20px;
+  margin-bottom: 14px;
+  page-break-inside: avoid;
+}
+h2 { margin: 0 0 8px 0; font-size: 16px; color: var(--ink); }
+p { margin: 0 0 8px 0; color: var(--muted); }
+ul { margin: 6px 0 0 0; padding-left: 18px; color: var(--muted); }
+li { margin-bottom: 5px; }
+.grid-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+.badge {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 6px;
+  font-size: 11.5px;
+  font-weight: 700;
+  margin-bottom: 6px;
+}
+.badge-teal { background: var(--teal-soft); color: #115e59; }
+.badge-blue { background: var(--blue-soft); color: #075985; }
+.badge-green { background: var(--green-soft); color: var(--green); }
+.badge-amber { background: var(--amber-soft); color: var(--amber); }
+pre {
+  background: #0f172a;
+  color: #e2e8f0;
+  padding: 12px 14px;
+  border-radius: 8px;
+  font-size: 11.5px;
+  overflow-x: auto;
+  margin: 8px 0 0 0;
+}
+footer {
+  margin-top: 14px;
+  padding-top: 10px;
+  border-top: 1px solid var(--line);
+  display: flex;
+  justify-content: space-between;
+  font-size: 11.5px;
+  color: var(--muted);
+}
+</style>
+</head>
+<body>
+  <header class="header-hero">
+    <div class="header-top">
+      <span class="version-pill">Grex JS v0.4.0</span>
+      <span class="date-tag">Released 2026-11-13 · urbanspress/grex-js</span>
+    </div>
+    <h1>Grex JS v0.4.0 — Accessibility, Global Theme/Class Manager & grab mcp Catalog</h1>
+    <p class="subtitle">Plain-English Walkthrough of Built-In WCAG AA Guardrails, Light/Dark Themes, Reusable CSS Classes & AI Discovery</p>
+    <p class="lead-p">Grex JS v0.4.0 completes the creator and AI safety layer: global light/dark design tokens via createTheme, reusable responsive styles via createClassManager, automated WCAG AA contrast and semantic accessibility checks via auditAccessibility and auditDom, and the machine-readable grex.elements.json catalog for Groxy AI and Grex Builder.</p>
+  </header>
+
+  <main class="grid-2">
+  <section class="card">
+    <span class="badge badge-blue">1. Theme & Class Manager</span>
+    <h2>Global Design Tokens & Reusable Styles</h2>
+    <ul>
+      <li>createTheme compiles :root tokens, [data-grex-theme] mode overrides, optional dark-mode media queries, and a built-in :focus-visible keyboard ring.</li>
+      <li>applyTo(element, mode) updates CSS custom properties live in browser memory without restarting Grisp.</li>
+      <li>createClassManager lets builders share responsive styles across elements via .grex-c-* classes while blocking unsafe CSS properties.</li>
+    </ul>
+  </section>
+  <section class="card">
+    <span class="badge badge-green">2. Accessibility Guardrails</span>
+    <h2>auditAccessibility() & auditDom()</h2>
+    <ul>
+      <li>Computes WCAG 2.1 AA contrast ratios (>= 4.5:1 normal text, >= 3.0:1 large text) with parseCssColor and computeContrastRatio.</li>
+      <li>Flags missing Image alt attributes (GREX-A11Y-002), unlabelled inputs (GREX-A11Y-003), skipped headings (GREX-A11Y-004), and hidden focus rings (GREX-A11Y-005).</li>
+    </ul>
+  </section>
+  <section class="card">
+    <span class="badge badge-amber">3. AI & Builder Discovery</span>
+    <h2>grex.elements.json & validateElementNode()</h2>
+    <ul>
+      <li>Exports every allowed Grex JS element, HTML5 semantic tag list, prop schema, accessibility default, and CSS allowlist.</li>
+      <li>validateElementNode() rejects unknown component names, disallowed tags (like wrapper divs), unknown props, and unsafe URLs before rendering.</li>
+    </ul>
+  </section>
+  </main>
+
+  <section class="card">
+    <span class="badge badge-teal">GRAB 1.0 + Grisp Integration Example</span>
+    <h2>Zero-Restart Static Fingerprinting with <code>server.asset</code></h2>
+    <p>Grisp serves compiled stylesheets and Grex JS modules from <code>/static/grex/</code> with automatic SHA-256 <code>?v=</code> cache-busting:</p>
+    <pre>const theme = createTheme({ colors: { accent: "#0284c7" }, modes: { dark: { surface: "#0f172a" } } });
+const report = auditAccessibility(pageTree);
+validateElementNode(pageTree);</pre>
+  </section>
+
+  <footer>
+    <span>Grex JS — Reactive Frontend Runtime for GRAB &amp; Grisp</span>
+    <span>Verified Release Guide · v0.4.0 · MIT License</span>
+  </footer>
+</body>
+</html>

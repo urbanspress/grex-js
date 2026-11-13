@@ -2,14 +2,14 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import fs from "node:fs";
 import path from "node:path";
-import * as bundle from "../dist/grex-js-v0.3.0.min.js";
+import * as bundle from "../dist/grex-js-v1.0.0.min.js";
 import * as exampleBundle from "../examples/grisp-basic/public/grex/grex.js";
 import { createTestEnv } from "./helpers/dom-shim.js";
 
-test("release bundle exports full v0.3 API and contains zero eval()/new Function()/.innerHTML", () => {
+test("release bundle exports full v1.0.0 API and contains zero eval()/new Function()/.innerHTML", () => {
   for (const relPath of [
-    "dist/grex-js-v0.3.0.js",
-    "dist/grex-js-v0.3.0.min.js",
+    "dist/grex-js-v1.0.0.js",
+    "dist/grex-js-v1.0.0.min.js",
     "examples/grisp-basic/public/grex/grex.js",
   ]) {
     const raw = fs.readFileSync(path.resolve(relPath), "utf8");
@@ -42,6 +42,12 @@ test("release bundle exports full v0.3 API and contains zero eval()/new Function
     assert.equal(typeof api.createGrabClient, "function");
     assert.equal(typeof api.useQuery, "function");
     assert.equal(typeof api.useMutation, "function");
+    assert.equal(typeof api.createTheme, "function");
+    assert.equal(typeof api.createClassManager, "function");
+    assert.equal(typeof api.auditAccessibility, "function");
+    assert.equal(typeof api.auditDom, "function");
+    assert.equal(typeof api.exportElementCatalog, "function");
+    assert.equal(typeof api.validateElementNode, "function");
     card.dispose();
   }
 });

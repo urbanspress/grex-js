@@ -1,7 +1,7 @@
 # GREX-JS-SPEC-004: Grex JS v0.4 & v1.0.0 — Accessibility, Global Theme/Class Manager, `grex.elements.json` & Stability Freeze
 
-**Status:** Approved Target; Specification in Review (2026-11-13)
-**Version:** `0.4.0-draft` → `1.0.0`
+**Status:** Complete (Implemented & Verified 43/43 tests on 2026-11-13)
+**Version:** `1.0.0`
 **Date:** 2026-11-13
 **Aligned GRAB ADRs:** `ADR-014`, `ADR-017`, `ADR-018`, `ADR-025c`, `ADR-027a`, `ADR-027b`, `ADR-027c`, `ADR-027d`
 

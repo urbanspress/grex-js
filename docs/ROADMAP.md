@@ -51,7 +51,7 @@
 ---
 
 ## `v0.4` — Accessibility, Global Theme/Class Manager & `grab mcp` Design Alignment
-**Status:** Approved Target; Specification in Review ([`specifications/GREX-JS-SPEC-004.md`](../specifications/GREX-JS-SPEC-004.md))
+**Status:** Complete ([`specifications/GREX-JS-SPEC-004.md`](../specifications/GREX-JS-SPEC-004.md))
 
 - **Accessibility Audit & Focus Guardrails:** `auditAccessibility(tree)` / `auditDom(root)` verifying WCAG AA contrast (`>= 4.5:1`), `Image` `alt` text, `<label>` associations, heading hierarchy (`h1`–`h6`), and `:focus-visible` focus-ring guardrails aligned with `GRAB-DESIGN-SYSTEM.md`.
 - **Global Theme & Class Manager:** `createTheme` (light/dark `--grex-*` presets) and `createClassManager` (reusable Bricks-style classes) compiled deterministically to `/static/grex/`.
@@ -63,7 +63,7 @@
 ---
 
 ## `v1.0.0` — Stable Element Schema, SemVer Freeze & Production Release
-**Status:** Approved Target; Specification in Review ([`specifications/GREX-JS-SPEC-004.md`](../specifications/GREX-JS-SPEC-004.md))
+**Status:** Complete — Ready for Release Approval ([`specifications/GREX-JS-SPEC-004.md`](../specifications/GREX-JS-SPEC-004.md))
 
 - **Stable `v1.0.0` Element Schema:** Versioned JSON element schema locked for **Grex Builder**, **GrabLab CMS**, and **Groxy AI** (`grab mcp`).
 - **SemVer `v1.x` Stability Freeze:** Public reactive API (`signal`, `computed`, `effect`, `batch`), `data-grex-*` hydration attributes, `--grex-*` token conventions, and `GrexPreviewBridge` message schema frozen for `v1.x`.

@@ -1,0 +1,161 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Grex JS v1.0.0 — Production Release & Schema Stability Freeze</title>
+  <style>
+:root {
+  --ink: #0f172a;
+  --muted: #475569;
+  --line: #cbd5e1;
+  --bg-page: #f8fafc;
+  --surface: #ffffff;
+  --teal: #0d9488;
+  --teal-soft: #ccfbf1;
+  --blue: #0284c7;
+  --blue-soft: #e0f2fe;
+  --green: #15803d;
+  --green-soft: #dcfce7;
+  --amber: #b45309;
+  --amber-soft: #fef3c7;
+}
+* { box-sizing: border-box; }
+@page { size: A4; margin: 12mm 14mm 14mm 14mm; }
+body {
+  margin: 0;
+  padding: 0;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  color: var(--ink);
+  background: var(--bg-page);
+  line-height: 1.55;
+  font-size: 13.5px;
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+}
+.header-hero {
+  background: linear-gradient(135deg, #0f172a 0%, #1e293b 60%, #0d9488 100%);
+  color: #ffffff;
+  border-radius: 12px;
+  padding: 24px 28px;
+  margin-bottom: 18px;
+}
+.header-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+.version-pill {
+  background: #38bdf8;
+  color: #0f172a;
+  font-weight: 800;
+  font-size: 12px;
+  padding: 4px 12px;
+  border-radius: 999px;
+}
+.date-tag { font-size: 11.5px; color: #cbd5e1; }
+h1 { margin: 0 0 6px 0; font-size: 25px; color: #ffffff; }
+.subtitle { font-size: 14.5px; color: #5eead4; font-weight: 600; margin: 0 0 10px 0; }
+.lead-p { margin: 0; color: #e2e8f0; font-size: 13.5px; }
+.card {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 16px 20px;
+  margin-bottom: 14px;
+  page-break-inside: avoid;
+}
+h2 { margin: 0 0 8px 0; font-size: 16px; color: var(--ink); }
+p { margin: 0 0 8px 0; color: var(--muted); }
+ul { margin: 6px 0 0 0; padding-left: 18px; color: var(--muted); }
+li { margin-bottom: 5px; }
+.grid-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+.badge {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 6px;
+  font-size: 11.5px;
+  font-weight: 700;
+  margin-bottom: 6px;
+}
+.badge-teal { background: var(--teal-soft); color: #115e59; }
+.badge-blue { background: var(--blue-soft); color: #075985; }
+.badge-green { background: var(--green-soft); color: var(--green); }
+.badge-amber { background: var(--amber-soft); color: var(--amber); }
+pre {
+  background: #0f172a;
+  color: #e2e8f0;
+  padding: 12px 14px;
+  border-radius: 8px;
+  font-size: 11.5px;
+  overflow-x: auto;
+  margin: 8px 0 0 0;
+}
+footer {
+  margin-top: 14px;
+  padding-top: 10px;
+  border-top: 1px solid var(--line);
+  display: flex;
+  justify-content: space-between;
+  font-size: 11.5px;
+  color: var(--muted);
+}
+</style>
+</head>
+<body>
+  <header class="header-hero">
+    <div class="header-top">
+      <span class="version-pill">Grex JS v1.0.0</span>
+      <span class="date-tag">Released 2026-11-13 · urbanspress/grex-js</span>
+    </div>
+    <h1>Grex JS v1.0.0 — Production Release & Schema Stability Freeze</h1>
+    <p class="subtitle">Plain-English Guide to the Complete Zero-Dependency GRAB + Grisp Frontend Runtime & 20-Element Catalog</p>
+    <p class="lead-p">Grex JS v1.0.0 freezes the v1.x public API, JSON element schema (grex.elements.json), and browser runtime bundles. Built specifically for GRAB 1.0, Grisp, Grex Builder, GrabLab CMS, and Groxy AI, every element outputs clean semantic HTML5 with zero wrapper divs, zero eval() or innerHTML, and instant CSS updates via /static/grex/ and server.asset.</p>
+  </header>
+
+  <main class="grid-2">
+  <section class="card">
+    <span class="badge badge-green">1. Complete Platform Stack</span>
+    <h2>Reactive Core + 20 Native Semantic Elements</h2>
+    <ul>
+      <li>Fine-grained signals (signal, computed, effect, batch) preserving exact GRAB GrabDecimal and GrabInteger base-10 wire strings.</li>
+      <li>12 layout/typography/media elements, 7 accessible interactive/form widgets, keyed ForEach repeaters, and origin-checked GrexPreviewBridge.</li>
+    </ul>
+  </section>
+  <section class="card">
+    <span class="badge badge-blue">2. GRAB & Grisp Native</span>
+    <h2>Fluid Sync Without Restarts</h2>
+    <ul>
+      <li>Live Split-Screen Preview via signals and --grex-* custom properties in browser memory.</li>
+      <li>Instant Publish Styles written strictly to /static/grex/ and cached with GRAB server.asset ?v=hash.</li>
+      <li>Instant Publish Data via createGrabClient, useQuery, useMutation, and AbortController.</li>
+    </ul>
+  </section>
+  <section class="card">
+    <span class="badge badge-amber">3. AI, CMS & Accessibility Built In</span>
+    <h2>Safe by Default for Creators & Groxy AI</h2>
+    <ul>
+      <li>Global createTheme & createClassManager, automated WCAG AA auditAccessibility and auditDom checks, and grex.elements.json schema validation.</li>
+    </ul>
+  </section>
+  </main>
+
+  <section class="card">
+    <span class="badge badge-teal">GRAB 1.0 + Grisp Integration Example</span>
+    <h2>Zero-Restart Static Fingerprinting with <code>server.asset</code></h2>
+    <p>Grisp serves compiled stylesheets and Grex JS modules from <code>/static/grex/</code> with automatic SHA-256 <code>?v=</code> cache-busting:</p>
+    <pre>import { createTheme, renderNode, auditAccessibility, validateElementNode } from "/static/grex/grex.js";
+validateElementNode(pageTree);
+if (auditAccessibility(pageTree).ok) renderNode(pageTree, { document });</pre>
+  </section>
+
+  <footer>
+    <span>Grex JS — Reactive Frontend Runtime for GRAB &amp; Grisp</span>
+    <span>Verified Release Guide · v1.0.0 · MIT License</span>
+  </footer>
+</body>
+</html>

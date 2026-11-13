@@ -1,0 +1,1465 @@
+{
+  "schemaVersion": "1.0.0",
+  "framework": "grex-js",
+  "elementCount": 20,
+  "elements": {
+    "Section": {
+      "name": "Section",
+      "category": "layout",
+      "defaultTag": "section",
+      "allowedTags": [
+        "section",
+        "header",
+        "footer",
+        "main",
+        "aside"
+      ],
+      "acceptsChildren": true,
+      "props": {
+        "label": {
+          "type": "string",
+          "required": false
+        },
+        "labelledBy": {
+          "type": "string",
+          "required": false
+        }
+      },
+      "a11yDefaults": {
+        "landmark": true
+      },
+      "securityRules": [
+        "no-wrapper-div",
+        "csp-safe"
+      ],
+      "supportedStyleProps": [
+        "padding",
+        "padding-block",
+        "padding-inline",
+        "margin",
+        "margin-block",
+        "margin-inline",
+        "max-width",
+        "width",
+        "height",
+        "min-height",
+        "display",
+        "grid-template-columns",
+        "flex-direction",
+        "flex-wrap",
+        "gap",
+        "row-gap",
+        "column-gap",
+        "align-items",
+        "justify-content",
+        "font-size",
+        "font-weight",
+        "line-height",
+        "text-align",
+        "color",
+        "background",
+        "background-color",
+        "border",
+        "border-radius",
+        "box-shadow"
+      ]
+    },
+    "Container": {
+      "name": "Container",
+      "category": "layout",
+      "defaultTag": "section",
+      "allowedTags": [
+        "section",
+        "article",
+        "main",
+        "header",
+        "footer"
+      ],
+      "acceptsChildren": true,
+      "props": {
+        "maxWidth": {
+          "type": "string",
+          "required": false
+        },
+        "label": {
+          "type": "string",
+          "required": false
+        },
+        "labelledBy": {
+          "type": "string",
+          "required": false
+        }
+      },
+      "a11yDefaults": {
+        "singleNodeMaxWidth": true
+      },
+      "securityRules": [
+        "no-wrapper-div"
+      ],
+      "supportedStyleProps": [
+        "padding",
+        "padding-block",
+        "padding-inline",
+        "margin",
+        "margin-block",
+        "margin-inline",
+        "max-width",
+        "width",
+        "height",
+        "min-height",
+        "display",
+        "grid-template-columns",
+        "flex-direction",
+        "flex-wrap",
+        "gap",
+        "row-gap",
+        "column-gap",
+        "align-items",
+        "justify-content",
+        "font-size",
+        "font-weight",
+        "line-height",
+        "text-align",
+        "color",
+        "background",
+        "background-color",
+        "border",
+        "border-radius",
+        "box-shadow"
+      ]
+    },
+    "Grid": {
+      "name": "Grid",
+      "category": "layout",
+      "defaultTag": "section",
+      "allowedTags": [
+        "section",
+        "ul",
+        "ol",
+        "article",
+        "nav"
+      ],
+      "acceptsChildren": true,
+      "props": {
+        "columns": {
+          "type": "string",
+          "required": false
+        },
+        "gap": {
+          "type": "string",
+          "required": false
+        },
+        "align": {
+          "type": "string",
+          "required": false
+        },
+        "justify": {
+          "type": "string",
+          "required": false
+        },
+        "label": {
+          "type": "string",
+          "required": false
+        }
+      },
+      "a11yDefaults": {
+        "cssGridOnRoot": true
+      },
+      "securityRules": [
+        "no-wrapper-div"
+      ],
+      "supportedStyleProps": [
+        "padding",
+        "padding-block",
+        "padding-inline",
+        "margin",
+        "margin-block",
+        "margin-inline",
+        "max-width",
+        "width",
+        "height",
+        "min-height",
+        "display",
+        "grid-template-columns",
+        "flex-direction",
+        "flex-wrap",
+        "gap",
+        "row-gap",
+        "column-gap",
+        "align-items",
+        "justify-content",
+        "font-size",
+        "font-weight",
+        "line-height",
+        "text-align",
+        "color",
+        "background",
+        "background-color",
+        "border",
+        "border-radius",
+        "box-shadow"
+      ]
+    },
+    "Stack": {
+      "name": "Stack",
+      "category": "layout",
+      "defaultTag": "section",
+      "allowedTags": [
+        "section",
+        "header",
+        "nav",
+        "footer",
+        "ul",
+        "ol",
+        "article"
+      ],
+      "acceptsChildren": true,
+      "props": {
+        "direction": {
+          "type": "string",
+          "enum": [
+            "column",
+            "row"
+          ],
+          "default": "column"
+        },
+        "wrap": {
+          "type": "string",
+          "required": false
+        },
+        "gap": {
+          "type": "string",
+          "required": false
+        },
+        "align": {
+          "type": "string",
+          "required": false
+        },
+        "justify": {
+          "type": "string",
+          "required": false
+        },
+        "label": {
+          "type": "string",
+          "required": false
+        }
+      },
+      "a11yDefaults": {
+        "flexOnRoot": true
+      },
+      "securityRules": [
+        "no-wrapper-div"
+      ],
+      "supportedStyleProps": [
+        "padding",
+        "padding-block",
+        "padding-inline",
+        "margin",
+        "margin-block",
+        "margin-inline",
+        "max-width",
+        "width",
+        "height",
+        "min-height",
+        "display",
+        "grid-template-columns",
+        "flex-direction",
+        "flex-wrap",
+        "gap",
+        "row-gap",
+        "column-gap",
+        "align-items",
+        "justify-content",
+        "font-size",
+        "font-weight",
+        "line-height",
+        "text-align",
+        "color",
+        "background",
+        "background-color",
+        "border",
+        "border-radius",
+        "box-shadow"
+      ]
+    },
+    "Card": {
+      "name": "Card",
+      "category": "layout",
+      "defaultTag": "article",
+      "allowedTags": [
+        "article",
+        "section",
+        "aside"
+      ],
+      "acceptsChildren": true,
+      "props": {
+        "elevated": {
+          "type": "boolean",
+          "default": false
+        },
+        "label": {
+          "type": "string",
+          "required": false
+        }
+      },
+      "a11yDefaults": {
+        "semanticArticle": true
+      },
+      "securityRules": [
+        "no-wrapper-div"
+      ],
+      "supportedStyleProps": [
+        "padding",
+        "padding-block",
+        "padding-inline",
+        "margin",
+        "margin-block",
+        "margin-inline",
+        "max-width",
+        "width",
+        "height",
+        "min-height",
+        "display",
+        "grid-template-columns",
+        "flex-direction",
+        "flex-wrap",
+        "gap",
+        "row-gap",
+        "column-gap",
+        "align-items",
+        "justify-content",
+        "font-size",
+        "font-weight",
+        "line-height",
+        "text-align",
+        "color",
+        "background",
+        "background-color",
+        "border",
+        "border-radius",
+        "box-shadow"
+      ]
+    },
+    "Heading": {
+      "name": "Heading",
+      "category": "typography",
+      "defaultTag": "h2",
+      "allowedTags": [
+        "h1",
+        "h2",
+        "h3",
+        "h4",
+        "h5",
+        "h6"
+      ],
+      "acceptsChildren": false,
+      "props": {
+        "level": {
+          "type": "integer",
+          "min": 1,
+          "max": 6,
+          "default": 2
+        },
+        "text": {
+          "type": "string",
+          "required": true
+        }
+      },
+      "a11yDefaults": {
+        "validHeadingLevel": true
+      },
+      "securityRules": [
+        "textContent-only"
+      ],
+      "supportedStyleProps": [
+        "padding",
+        "padding-block",
+        "padding-inline",
+        "margin",
+        "margin-block",
+        "margin-inline",
+        "max-width",
+        "width",
+        "height",
+        "min-height",
+        "display",
+        "grid-template-columns",
+        "flex-direction",
+        "flex-wrap",
+        "gap",
+        "row-gap",
+        "column-gap",
+        "align-items",
+        "justify-content",
+        "font-size",
+        "font-weight",
+        "line-height",
+        "text-align",
+        "color",
+        "background",
+        "background-color",
+        "border",
+        "border-radius",
+        "box-shadow"
+      ]
+    },
+    "Text": {
+      "name": "Text",
+      "category": "typography",
+      "defaultTag": "p",
+      "allowedTags": [
+        "p",
+        "span",
+        "small",
+        "strong",
+        "em",
+        "blockquote",
+        "time",
+        "code"
+      ],
+      "acceptsChildren": false,
+      "props": {
+        "text": {
+          "type": "string",
+          "required": true
+        },
+        "dateTime": {
+          "type": "string",
+          "required": false
+        }
+      },
+      "a11yDefaults": {
+        "preserveExactGrabDecimalString": true
+      },
+      "securityRules": [
+        "textContent-only",
+        "no-float-coercion"
+      ],
+      "supportedStyleProps": [
+        "padding",
+        "padding-block",
+        "padding-inline",
+        "margin",
+        "margin-block",
+        "margin-inline",
+        "max-width",
+        "width",
+        "height",
+        "min-height",
+        "display",
+        "grid-template-columns",
+        "flex-direction",
+        "flex-wrap",
+        "gap",
+        "row-gap",
+        "column-gap",
+        "align-items",
+        "justify-content",
+        "font-size",
+        "font-weight",
+        "line-height",
+        "text-align",
+        "color",
+        "background",
+        "background-color",
+        "border",
+        "border-radius",
+        "box-shadow"
+      ]
+    },
+    "RichText": {
+      "name": "RichText",
+      "category": "typography",
+      "defaultTag": "p",
+      "allowedTags": [
+        "p",
+        "article",
+        "section",
+        "span"
+      ],
+      "acceptsChildren": false,
+      "props": {
+        "nodes": {
+          "type": "array",
+          "required": false
+        },
+        "html": {
+          "type": "string",
+          "required": false
+        },
+        "text": {
+          "type": "string",
+          "required": false
+        }
+      },
+      "a11yDefaults": {
+        "safeExternalLinks": true
+      },
+      "securityRules": [
+        "zero-innerHTML",
+        "inline-tag-allowlist"
+      ],
+      "supportedStyleProps": [
+        "padding",
+        "padding-block",
+        "padding-inline",
+        "margin",
+        "margin-block",
+        "margin-inline",
+        "max-width",
+        "width",
+        "height",
+        "min-height",
+        "display",
+        "grid-template-columns",
+        "flex-direction",
+        "flex-wrap",
+        "gap",
+        "row-gap",
+        "column-gap",
+        "align-items",
+        "justify-content",
+        "font-size",
+        "font-weight",
+        "line-height",
+        "text-align",
+        "color",
+        "background",
+        "background-color",
+        "border",
+        "border-radius",
+        "box-shadow"
+      ]
+    },
+    "Link": {
+      "name": "Link",
+      "category": "action",
+      "defaultTag": "a",
+      "allowedTags": [
+        "a"
+      ],
+      "acceptsChildren": true,
+      "props": {
+        "href": {
+          "type": "url",
+          "required": true
+        },
+        "text": {
+          "type": "string",
+          "required": false
+        },
+        "target": {
+          "type": "string",
+          "required": false
+        },
+        "rel": {
+          "type": "string",
+          "required": false
+        },
+        "external": {
+          "type": "boolean",
+          "default": false
+        },
+        "label": {
+          "type": "string",
+          "required": false
+        }
+      },
+      "a11yDefaults": {
+        "relNoopenerOnExternal": true
+      },
+      "securityRules": [
+        "url-protocol-check"
+      ],
+      "supportedStyleProps": [
+        "padding",
+        "padding-block",
+        "padding-inline",
+        "margin",
+        "margin-block",
+        "margin-inline",
+        "max-width",
+        "width",
+        "height",
+        "min-height",
+        "display",
+        "grid-template-columns",
+        "flex-direction",
+        "flex-wrap",
+        "gap",
+        "row-gap",
+        "column-gap",
+        "align-items",
+        "justify-content",
+        "font-size",
+        "font-weight",
+        "line-height",
+        "text-align",
+        "color",
+        "background",
+        "background-color",
+        "border",
+        "border-radius",
+        "box-shadow"
+      ]
+    },
+    "Button": {
+      "name": "Button",
+      "category": "action",
+      "defaultTag": "button",
+      "allowedTags": [
+        "button"
+      ],
+      "acceptsChildren": false,
+      "props": {
+        "text": {
+          "type": "string",
+          "required": false
+        },
+        "type": {
+          "type": "string",
+          "enum": [
+            "button",
+            "submit",
+            "reset"
+          ],
+          "default": "button"
+        },
+        "disabled": {
+          "type": "boolean",
+          "default": false
+        },
+        "pressed": {
+          "type": "boolean",
+          "required": false
+        },
+        "expanded": {
+          "type": "boolean",
+          "required": false
+        },
+        "label": {
+          "type": "string",
+          "required": false
+        },
+        "onClick": {
+          "type": "function",
+          "required": false
+        }
+      },
+      "a11yDefaults": {
+        "safeDefaultTypeButton": true
+      },
+      "securityRules": [
+        "addEventListener-only",
+        "no-inline-onclick"
+      ],
+      "supportedStyleProps": [
+        "padding",
+        "padding-block",
+        "padding-inline",
+        "margin",
+        "margin-block",
+        "margin-inline",
+        "max-width",
+        "width",
+        "height",
+        "min-height",
+        "display",
+        "grid-template-columns",
+        "flex-direction",
+        "flex-wrap",
+        "gap",
+        "row-gap",
+        "column-gap",
+        "align-items",
+        "justify-content",
+        "font-size",
+        "font-weight",
+        "line-height",
+        "text-align",
+        "color",
+        "background",
+        "background-color",
+        "border",
+        "border-radius",
+        "box-shadow"
+      ]
+    },
+    "Image": {
+      "name": "Image",
+      "category": "media",
+      "defaultTag": "img",
+      "allowedTags": [
+        "img"
+      ],
+      "acceptsChildren": false,
+      "props": {
+        "src": {
+          "type": "url",
+          "required": true
+        },
+        "alt": {
+          "type": "string",
+          "required": false
+        },
+        "decorative": {
+          "type": "boolean",
+          "default": false
+        },
+        "width": {
+          "type": "number|string",
+          "required": false
+        },
+        "height": {
+          "type": "number|string",
+          "required": false
+        },
+        "srcset": {
+          "type": "string",
+          "required": false
+        },
+        "sizes": {
+          "type": "string",
+          "required": false
+        },
+        "loading": {
+          "type": "string",
+          "enum": [
+            "lazy",
+            "eager"
+          ],
+          "default": "lazy"
+        },
+        "decoding": {
+          "type": "string",
+          "enum": [
+            "async",
+            "sync",
+            "auto"
+          ],
+          "default": "async"
+        }
+      },
+      "a11yDefaults": {
+        "requireAltOrDecorative": true,
+        "clsDimensionsRecommended": true
+      },
+      "securityRules": [
+        "url-protocol-check",
+        "srcset-url-check"
+      ],
+      "supportedStyleProps": [
+        "padding",
+        "padding-block",
+        "padding-inline",
+        "margin",
+        "margin-block",
+        "margin-inline",
+        "max-width",
+        "width",
+        "height",
+        "min-height",
+        "display",
+        "grid-template-columns",
+        "flex-direction",
+        "flex-wrap",
+        "gap",
+        "row-gap",
+        "column-gap",
+        "align-items",
+        "justify-content",
+        "font-size",
+        "font-weight",
+        "line-height",
+        "text-align",
+        "color",
+        "background",
+        "background-color",
+        "border",
+        "border-radius",
+        "box-shadow"
+      ]
+    },
+    "Icon": {
+      "name": "Icon",
+      "category": "media",
+      "defaultTag": "svg",
+      "allowedTags": [
+        "svg"
+      ],
+      "acceptsChildren": false,
+      "props": {
+        "viewBox": {
+          "type": "string",
+          "default": "0 0 24 24"
+        },
+        "size": {
+          "type": "number|string",
+          "default": "24"
+        },
+        "fill": {
+          "type": "string",
+          "default": "none"
+        },
+        "paths": {
+          "type": "array",
+          "required": false
+        },
+        "symbolId": {
+          "type": "string",
+          "required": false
+        },
+        "label": {
+          "type": "string",
+          "required": false
+        },
+        "decorative": {
+          "type": "boolean",
+          "default": true
+        }
+      },
+      "a11yDefaults": {
+        "ariaHiddenWhenDecorative": true,
+        "roleImgWithLabel": true
+      },
+      "securityRules": [
+        "zero-innerHTML",
+        "svg-createElementNS-allowlist"
+      ],
+      "supportedStyleProps": [
+        "padding",
+        "padding-block",
+        "padding-inline",
+        "margin",
+        "margin-block",
+        "margin-inline",
+        "max-width",
+        "width",
+        "height",
+        "min-height",
+        "display",
+        "grid-template-columns",
+        "flex-direction",
+        "flex-wrap",
+        "gap",
+        "row-gap",
+        "column-gap",
+        "align-items",
+        "justify-content",
+        "font-size",
+        "font-weight",
+        "line-height",
+        "text-align",
+        "color",
+        "background",
+        "background-color",
+        "border",
+        "border-radius",
+        "box-shadow"
+      ]
+    },
+    "Form": {
+      "name": "Form",
+      "category": "interactive",
+      "defaultTag": "form",
+      "allowedTags": [
+        "form"
+      ],
+      "acceptsChildren": true,
+      "props": {
+        "action": {
+          "type": "url",
+          "required": false
+        },
+        "method": {
+          "type": "string",
+          "enum": [
+            "post",
+            "get"
+          ],
+          "default": "post"
+        },
+        "csrfToken": {
+          "type": "string|signal",
+          "required": false
+        },
+        "csrfHeader": {
+          "type": "string",
+          "default": "X-CSRF-Token"
+        },
+        "csrfField": {
+          "type": "string",
+          "required": false
+        },
+        "requireCsrf": {
+          "type": "boolean",
+          "default": true
+        },
+        "onSubmit": {
+          "type": "function",
+          "required": false
+        }
+      },
+      "a11yDefaults": {
+        "ariaBusyOnSubmit": true,
+        "doubleSubmitGuard": true
+      },
+      "securityRules": [
+        "url-protocol-check",
+        "csrf-enforcement"
+      ],
+      "supportedStyleProps": [
+        "padding",
+        "padding-block",
+        "padding-inline",
+        "margin",
+        "margin-block",
+        "margin-inline",
+        "max-width",
+        "width",
+        "height",
+        "min-height",
+        "display",
+        "grid-template-columns",
+        "flex-direction",
+        "flex-wrap",
+        "gap",
+        "row-gap",
+        "column-gap",
+        "align-items",
+        "justify-content",
+        "font-size",
+        "font-weight",
+        "line-height",
+        "text-align",
+        "color",
+        "background",
+        "background-color",
+        "border",
+        "border-radius",
+        "box-shadow"
+      ]
+    },
+    "Input": {
+      "name": "Input",
+      "category": "interactive",
+      "defaultTag": "label",
+      "allowedTags": [
+        "label",
+        "input",
+        "textarea"
+      ],
+      "acceptsChildren": false,
+      "props": {
+        "name": {
+          "type": "string",
+          "required": false
+        },
+        "label": {
+          "type": "string",
+          "required": false
+        },
+        "type": {
+          "type": "string",
+          "enum": [
+            "text",
+            "email",
+            "password",
+            "search",
+            "tel",
+            "url",
+            "number",
+            "hidden",
+            "textarea"
+          ],
+          "default": "text"
+        },
+        "value": {
+          "type": "string|signal",
+          "required": false
+        },
+        "grabType": {
+          "type": "string",
+          "enum": [
+            "GrabDecimal",
+            "GrabInteger"
+          ],
+          "required": false
+        },
+        "required": {
+          "type": "boolean|string",
+          "default": false
+        },
+        "minLength": {
+          "type": "number",
+          "required": false
+        },
+        "maxLength": {
+          "type": "number",
+          "required": false
+        },
+        "pattern": {
+          "type": "string",
+          "required": false
+        },
+        "placeholder": {
+          "type": "string",
+          "required": false
+        },
+        "disabled": {
+          "type": "boolean",
+          "default": false
+        },
+        "bare": {
+          "type": "boolean",
+          "default": false
+        }
+      },
+      "a11yDefaults": {
+        "labelForAssociation": true,
+        "roleAlertErrors": true
+      },
+      "securityRules": [
+        "no-float-coercion"
+      ],
+      "supportedStyleProps": [
+        "padding",
+        "padding-block",
+        "padding-inline",
+        "margin",
+        "margin-block",
+        "margin-inline",
+        "max-width",
+        "width",
+        "height",
+        "min-height",
+        "display",
+        "grid-template-columns",
+        "flex-direction",
+        "flex-wrap",
+        "gap",
+        "row-gap",
+        "column-gap",
+        "align-items",
+        "justify-content",
+        "font-size",
+        "font-weight",
+        "line-height",
+        "text-align",
+        "color",
+        "background",
+        "background-color",
+        "border",
+        "border-radius",
+        "box-shadow"
+      ]
+    },
+    "Select": {
+      "name": "Select",
+      "category": "interactive",
+      "defaultTag": "label",
+      "allowedTags": [
+        "label",
+        "select"
+      ],
+      "acceptsChildren": false,
+      "props": {
+        "name": {
+          "type": "string",
+          "required": false
+        },
+        "label": {
+          "type": "string",
+          "required": false
+        },
+        "value": {
+          "type": "string|signal",
+          "required": false
+        },
+        "options": {
+          "type": "array",
+          "required": true
+        },
+        "required": {
+          "type": "boolean",
+          "default": false
+        },
+        "disabled": {
+          "type": "boolean",
+          "default": false
+        },
+        "bare": {
+          "type": "boolean",
+          "default": false
+        }
+      },
+      "a11yDefaults": {
+        "labelForAssociation": true
+      },
+      "securityRules": [
+        "textContent-only"
+      ],
+      "supportedStyleProps": [
+        "padding",
+        "padding-block",
+        "padding-inline",
+        "margin",
+        "margin-block",
+        "margin-inline",
+        "max-width",
+        "width",
+        "height",
+        "min-height",
+        "display",
+        "grid-template-columns",
+        "flex-direction",
+        "flex-wrap",
+        "gap",
+        "row-gap",
+        "column-gap",
+        "align-items",
+        "justify-content",
+        "font-size",
+        "font-weight",
+        "line-height",
+        "text-align",
+        "color",
+        "background",
+        "background-color",
+        "border",
+        "border-radius",
+        "box-shadow"
+      ]
+    },
+    "Tabs": {
+      "name": "Tabs",
+      "category": "interactive",
+      "defaultTag": "section",
+      "allowedTags": [
+        "section"
+      ],
+      "acceptsChildren": false,
+      "props": {
+        "label": {
+          "type": "string",
+          "required": false
+        },
+        "activeId": {
+          "type": "string|signal",
+          "required": false
+        },
+        "tabs": {
+          "type": "array",
+          "required": true
+        }
+      },
+      "a11yDefaults": {
+        "roleTablist": true,
+        "arrowHomeEndKeyboardNav": true,
+        "rovingTabindex": true
+      },
+      "securityRules": [
+        "no-wrapper-div"
+      ],
+      "supportedStyleProps": [
+        "padding",
+        "padding-block",
+        "padding-inline",
+        "margin",
+        "margin-block",
+        "margin-inline",
+        "max-width",
+        "width",
+        "height",
+        "min-height",
+        "display",
+        "grid-template-columns",
+        "flex-direction",
+        "flex-wrap",
+        "gap",
+        "row-gap",
+        "column-gap",
+        "align-items",
+        "justify-content",
+        "font-size",
+        "font-weight",
+        "line-height",
+        "text-align",
+        "color",
+        "background",
+        "background-color",
+        "border",
+        "border-radius",
+        "box-shadow"
+      ]
+    },
+    "Accordion": {
+      "name": "Accordion",
+      "category": "interactive",
+      "defaultTag": "section",
+      "allowedTags": [
+        "section"
+      ],
+      "acceptsChildren": false,
+      "props": {
+        "items": {
+          "type": "array",
+          "required": true
+        },
+        "singleOpen": {
+          "type": "boolean",
+          "default": false
+        },
+        "openIds": {
+          "type": "array|signal",
+          "required": false
+        }
+      },
+      "a11yDefaults": {
+        "nativeDetailsSummary": true
+      },
+      "securityRules": [
+        "no-wrapper-div"
+      ],
+      "supportedStyleProps": [
+        "padding",
+        "padding-block",
+        "padding-inline",
+        "margin",
+        "margin-block",
+        "margin-inline",
+        "max-width",
+        "width",
+        "height",
+        "min-height",
+        "display",
+        "grid-template-columns",
+        "flex-direction",
+        "flex-wrap",
+        "gap",
+        "row-gap",
+        "column-gap",
+        "align-items",
+        "justify-content",
+        "font-size",
+        "font-weight",
+        "line-height",
+        "text-align",
+        "color",
+        "background",
+        "background-color",
+        "border",
+        "border-radius",
+        "box-shadow"
+      ]
+    },
+    "Modal": {
+      "name": "Modal",
+      "category": "interactive",
+      "defaultTag": "dialog",
+      "allowedTags": [
+        "dialog"
+      ],
+      "acceptsChildren": true,
+      "props": {
+        "open": {
+          "type": "boolean|signal",
+          "required": true
+        },
+        "title": {
+          "type": "string",
+          "required": false
+        },
+        "onClose": {
+          "type": "function",
+          "required": false
+        }
+      },
+      "a11yDefaults": {
+        "nativeDialogShowModal": true,
+        "focusTrap": true,
+        "escapeDismiss": true,
+        "focusRestore": true
+      },
+      "securityRules": [
+        "no-wrapper-div"
+      ],
+      "supportedStyleProps": [
+        "padding",
+        "padding-block",
+        "padding-inline",
+        "margin",
+        "margin-block",
+        "margin-inline",
+        "max-width",
+        "width",
+        "height",
+        "min-height",
+        "display",
+        "grid-template-columns",
+        "flex-direction",
+        "flex-wrap",
+        "gap",
+        "row-gap",
+        "column-gap",
+        "align-items",
+        "justify-content",
+        "font-size",
+        "font-weight",
+        "line-height",
+        "text-align",
+        "color",
+        "background",
+        "background-color",
+        "border",
+        "border-radius",
+        "box-shadow"
+      ]
+    },
+    "Nav": {
+      "name": "Nav",
+      "category": "interactive",
+      "defaultTag": "nav",
+      "allowedTags": [
+        "nav"
+      ],
+      "acceptsChildren": false,
+      "props": {
+        "label": {
+          "type": "string",
+          "required": false
+        },
+        "items": {
+          "type": "array",
+          "required": true
+        },
+        "activePath": {
+          "type": "string|signal",
+          "required": false
+        },
+        "collapsible": {
+          "type": "boolean",
+          "default": false
+        },
+        "toggleLabel": {
+          "type": "string",
+          "default": "Menu"
+        },
+        "open": {
+          "type": "boolean|signal",
+          "required": false
+        }
+      },
+      "a11yDefaults": {
+        "ariaCurrentPage": true,
+        "ariaExpandedToggle": true
+      },
+      "securityRules": [
+        "url-protocol-check",
+        "relNoopenerOnExternal"
+      ],
+      "supportedStyleProps": [
+        "padding",
+        "padding-block",
+        "padding-inline",
+        "margin",
+        "margin-block",
+        "margin-inline",
+        "max-width",
+        "width",
+        "height",
+        "min-height",
+        "display",
+        "grid-template-columns",
+        "flex-direction",
+        "flex-wrap",
+        "gap",
+        "row-gap",
+        "column-gap",
+        "align-items",
+        "justify-content",
+        "font-size",
+        "font-weight",
+        "line-height",
+        "text-align",
+        "color",
+        "background",
+        "background-color",
+        "border",
+        "border-radius",
+        "box-shadow"
+      ]
+    },
+    "ForEach": {
+      "name": "ForEach",
+      "category": "repeater",
+      "defaultTag": "ul",
+      "allowedTags": [
+        "ul",
+        "ol",
+        "section",
+        "tbody"
+      ],
+      "acceptsChildren": false,
+      "props": {
+        "parent": {
+          "type": "object",
+          "required": false
+        },
+        "items": {
+          "type": "array|signal",
+          "required": true
+        },
+        "key": {
+          "type": "function",
+          "required": true
+        },
+        "render": {
+          "type": "function",
+          "required": true
+        },
+        "empty": {
+          "type": "function",
+          "required": false
+        }
+      },
+      "a11yDefaults": {
+        "stableKeyIdentity": true
+      },
+      "securityRules": [
+        "auto-dispose-removed"
+      ],
+      "supportedStyleProps": [
+        "padding",
+        "padding-block",
+        "padding-inline",
+        "margin",
+        "margin-block",
+        "margin-inline",
+        "max-width",
+        "width",
+        "height",
+        "min-height",
+        "display",
+        "grid-template-columns",
+        "flex-direction",
+        "flex-wrap",
+        "gap",
+        "row-gap",
+        "column-gap",
+        "align-items",
+        "justify-content",
+        "font-size",
+        "font-weight",
+        "line-height",
+        "text-align",
+        "color",
+        "background",
+        "background-color",
+        "border",
+        "border-radius",
+        "box-shadow"
+      ]
+    }
+  }
+}

@@ -23,16 +23,17 @@
 
 ## Repository Structure
 
-- `src/` — Zero-dependency ES modules (`signals.js`, `security.js`, `tokens.js`, `dom.js`, `elements.js`, `interactive.js`, `data.js`, `bridge.js`, `index.js`).
-- `tests/` — Automated unit, DOM, XSS/CSP security, element, interactive/keyboard, data-client, token, bridge, and release bundle tests (`npm test`).
+- `src/` — Zero-dependency ES modules (`signals.js`, `security.js`, `tokens.js`, `dom.js`, `elements.js`, `interactive.js`, `data.js`, `theme.js`, `a11y.js`, `catalog.js`, `bridge.js`, `index.js`).
+- `grex.elements.json` — Machine-readable schema catalog covering all 20 Grex JS semantic elements for Groxy AI (`grab mcp`), Grex Builder, and GrabLab CMS.
+- `tests/` — Automated unit, DOM, XSS/CSP security, element, interactive/keyboard, data-client, theme/a11y/catalog, token, bridge, and release bundle tests (`npm test`).
 - `examples/grisp-basic/` — Runnable GRAB 1.0 + Grisp `server.asset`, `--reload`, `ForEach`, `Form`, and `createGrabClient` example.
-- `scripts/build-release-assets.mjs` — Builds clean browser-ready bundles in `dist/`.
+- `scripts/build-release-assets.mjs` — Builds clean browser-ready bundles in `dist/` and regenerates `grex.elements.json`.
 - `docs/releases/` — Plain-English milestone walkthrough PDF generator (`generate_release_guides.py`) and PDFs.
 - `GREX-EXPERT.md` — Non-negotiable engineering invariants checklist.
 - `AGENTS.md` — Engineering rules, Two-Tier Model Routing, and Tandem Handoff Protocol.
 - `HANDOFF.md` — Tandem AI ownership tracker.
 - `docs/ROADMAP.md` — Milestone roadmap (`v0.1` through `v1.0.0`).
-- `specifications/` — Approved technical specifications (`GREX-JS-SPEC-001.md`–`003.md`).
+- `specifications/` — Approved technical specifications (`GREX-JS-SPEC-001.md`–`004.md`).
 - `LICENSE` — MIT License.
 
 ## Quick Verification
@@ -44,4 +45,4 @@ node scripts/build-release-assets.mjs
 
 ## Current Status
 
-**`v0.3.0` Released (Complete):** All 7 zero-wrapper-div interactive & form components (`Form`, `Input`, `Select`, `Tabs`, `Accordion`, `Modal`, `Nav`), keyed `ForEach` repeaters, and `grab.api.json` reactive data binding (`createGrabClient`, `useQuery`, `useMutation`, `AbortController`, CSRF safety, exact `GrabDecimal` strings) verified with 38/38 passing tests. Next milestone: `v0.4` specification planning.
+**`v1.0.0` Complete (Ready for Release Approval):** Complete reactive runtime, 20-element zero-wrapper-div UI catalog (`grex.elements.json` + `validateElementNode`), global light/dark themes and responsive class manager (`createTheme`, `createClassManager`), built-in WCAG AA accessibility audit (`auditAccessibility`, `auditDom`), GRAB 1.0 `grab.api.json` client bindings, and browser-ready static bundles verified with **43/43 passing tests**.

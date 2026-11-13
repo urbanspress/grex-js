@@ -1,5 +1,5 @@
 /**
- * Grex JS v0.3 Public Entrypoint.
+ * Grex JS v1.0.0 Public Entrypoint.
  */
 
 export {
@@ -75,6 +75,23 @@ export {
   useQuery,
   useMutation,
 } from "./data.js";
+
+export {
+  createTheme,
+  createClassManager,
+} from "./theme.js";
+
+export {
+  parseCssColor,
+  computeContrastRatio,
+  auditAccessibility,
+  auditDom,
+} from "./a11y.js";
+
+export {
+  exportElementCatalog,
+  validateElementNode,
+} from "./catalog.js";
 
 export {
   PREVIEW_CHANNEL,

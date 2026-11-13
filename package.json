@@ -1,6 +1,6 @@
 {
   "name": "grex-js",
-  "version": "0.3.0",
+  "version": "1.0.0",
   "description": "Lightweight reactive frontend runtime and zero-wrapper-div native UI element library for GRAB and Grisp.",
   "license": "MIT",
   "type": "module",
@@ -12,6 +12,9 @@
     "./elements": "./src/elements.js",
     "./interactive": "./src/interactive.js",
     "./data": "./src/data.js",
+    "./theme": "./src/theme.js",
+    "./a11y": "./src/a11y.js",
+    "./catalog": "./src/catalog.js",
     "./tokens": "./src/tokens.js",
     "./bridge": "./src/bridge.js",
     "./security": "./src/security.js"

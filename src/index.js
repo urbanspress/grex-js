@@ -1,5 +1,5 @@
 /**
- * Grex JS v0.2 Public Entrypoint.
+ * Grex JS v0.3 Public Entrypoint.
  */
 
 export {
@@ -53,8 +53,28 @@ export {
   Image,
   Icon,
   ELEMENT_REGISTRY,
+  registerElementType,
   renderNode,
 } from "./elements.js";
+
+export {
+  Form,
+  Input,
+  Select,
+  Tabs,
+  Accordion,
+  Modal,
+  Nav,
+  ForEach,
+} from "./interactive.js";
+
+export {
+  invalidateQueries,
+  connectSocketInvalidation,
+  createGrabClient,
+  useQuery,
+  useMutation,
+} from "./data.js";
 
 export {
   PREVIEW_CHANNEL,

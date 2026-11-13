@@ -1,7 +1,7 @@
 # GREX-JS-SPEC-003: Grex JS v0.3 Interactive UI Elements, Forms & `grab.api.json` Data Binding
 
-**Status:** Approved Target; Specification in Review (2026-11-13)
-**Version:** `0.3.0-draft`
+**Status:** Complete (Approved & Implemented 2026-11-13)
+**Version:** `0.3.0`
 **Date:** 2026-11-13
 **Aligned GRAB ADRs:** `ADR-014`, `ADR-017`, `ADR-018`, `ADR-025b`, `ADR-025c`, `ADR-025f`, `ADR-027b`
 

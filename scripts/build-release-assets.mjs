@@ -8,7 +8,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { compileElementStyles, compileTokenCss } from "../src/tokens.js";
 
-const VERSION = "v0.2.0";
+const VERSION = "v0.3.0";
 const ROOT = path.resolve(".");
 const SRC_DIR = path.join(ROOT, "src");
 const DIST_DIR = path.join(ROOT, "dist");
@@ -20,6 +20,8 @@ const MODULE_ORDER = [
   "tokens.js",
   "dom.js",
   "elements.js",
+  "interactive.js",
+  "data.js",
   "bridge.js",
 ];
 

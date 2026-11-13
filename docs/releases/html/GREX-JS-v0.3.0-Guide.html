@@ -1,0 +1,175 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Grex JS v0.3.0 — Interactive Elements, Forms & grab.api.json Data Binding</title>
+  <style>
+:root {
+  --ink: #0f172a;
+  --muted: #475569;
+  --line: #cbd5e1;
+  --bg-page: #f8fafc;
+  --surface: #ffffff;
+  --teal: #0d9488;
+  --teal-soft: #ccfbf1;
+  --blue: #0284c7;
+  --blue-soft: #e0f2fe;
+  --green: #15803d;
+  --green-soft: #dcfce7;
+  --amber: #b45309;
+  --amber-soft: #fef3c7;
+}
+* { box-sizing: border-box; }
+@page { size: A4; margin: 12mm 14mm 14mm 14mm; }
+body {
+  margin: 0;
+  padding: 0;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  color: var(--ink);
+  background: var(--bg-page);
+  line-height: 1.55;
+  font-size: 13.5px;
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+}
+.header-hero {
+  background: linear-gradient(135deg, #0f172a 0%, #1e293b 60%, #0d9488 100%);
+  color: #ffffff;
+  border-radius: 12px;
+  padding: 24px 28px;
+  margin-bottom: 18px;
+}
+.header-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+.version-pill {
+  background: #38bdf8;
+  color: #0f172a;
+  font-weight: 800;
+  font-size: 12px;
+  padding: 4px 12px;
+  border-radius: 999px;
+}
+.date-tag { font-size: 11.5px; color: #cbd5e1; }
+h1 { margin: 0 0 6px 0; font-size: 25px; color: #ffffff; }
+.subtitle { font-size: 14.5px; color: #5eead4; font-weight: 600; margin: 0 0 10px 0; }
+.lead-p { margin: 0; color: #e2e8f0; font-size: 13.5px; }
+.card {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 16px 20px;
+  margin-bottom: 14px;
+  page-break-inside: avoid;
+}
+h2 { margin: 0 0 8px 0; font-size: 16px; color: var(--ink); }
+p { margin: 0 0 8px 0; color: var(--muted); }
+ul { margin: 6px 0 0 0; padding-left: 18px; color: var(--muted); }
+li { margin-bottom: 5px; }
+.grid-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+.badge {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 6px;
+  font-size: 11.5px;
+  font-weight: 700;
+  margin-bottom: 6px;
+}
+.badge-teal { background: var(--teal-soft); color: #115e59; }
+.badge-blue { background: var(--blue-soft); color: #075985; }
+.badge-green { background: var(--green-soft); color: var(--green); }
+.badge-amber { background: var(--amber-soft); color: var(--amber); }
+pre {
+  background: #0f172a;
+  color: #e2e8f0;
+  padding: 12px 14px;
+  border-radius: 8px;
+  font-size: 11.5px;
+  overflow-x: auto;
+  margin: 8px 0 0 0;
+}
+footer {
+  margin-top: 14px;
+  padding-top: 10px;
+  border-top: 1px solid var(--line);
+  display: flex;
+  justify-content: space-between;
+  font-size: 11.5px;
+  color: var(--muted);
+}
+</style>
+</head>
+<body>
+  <header class="header-hero">
+    <div class="header-top">
+      <span class="version-pill">Grex JS v0.3.0</span>
+      <span class="date-tag">Released 2026-11-13 · urbanspress/grex-js</span>
+    </div>
+    <h1>Grex JS v0.3.0 — Interactive Elements, Forms & grab.api.json Data Binding</h1>
+    <p class="subtitle">Plain-English Walkthrough of Forms, Keyboard-Accessible Widgets, Keyed Repeaters & GRAB APIs</p>
+    <p class="lead-p">Grex JS v0.3.0 adds 7 accessible interactive and form components, keyed collection repeaters (ForEach), and direct GRAB 1.0 grab.api.json data binding (createGrabClient, useQuery, useMutation) with automatic CSRF protection, AbortController race-condition cancellation, and exact base-10 decimal precision.</p>
+  </header>
+
+  <main class="grid-2">
+  <section class="card">
+    <span class="badge badge-teal">1. Forms & Exact Decimals</span>
+    <h2>Form, Input & Select (Zero Wrapper <div>s)</h2>
+    <ul>
+      <li>Form prevents double-submissions, validates action URLs, and attaches CSRF headers/hidden fields automatically.</li>
+      <li>Input pairs <label> and <input>/<textarea> cleanly with <small role="alert"> validation messages and aria-invalid.</li>
+      <li>GrabDecimal / GrabInteger inputs preserve exact base-10 strings like "19.95" and "19.90" without IEEE-754 float rounding.</li>
+      <li>Select supports flat <option> lists and <optgroup> groups bound to reactive signals.</li>
+    </ul>
+  </section>
+  <section class="card">
+    <span class="badge badge-blue">2. Accessible Widgets</span>
+    <h2>Tabs, Accordion, Modal & Nav</h2>
+    <ul>
+      <li>Tabs implements WAI-ARIA role="tablist"/"tab"/"tabpanel" with ArrowLeft/ArrowRight/Home/End keyboard navigation and roving tabindex.</li>
+      <li>Accordion uses native HTML5 <details> + <summary> (zero JS required for basic toggle) with optional singleOpen mode.</li>
+      <li>Modal uses native <dialog> with showModal(), Tab/Shift+Tab focus trapping, Escape dismissal, and trigger focus restoration.</li>
+      <li>Nav validates all links, supports mobile toggle buttons (aria-expanded), and sets aria-current="page" reactively.</li>
+    </ul>
+  </section>
+  <section class="card">
+    <span class="badge badge-amber">3. Keyed Repeaters</span>
+    <h2>ForEach Collection Reconciliation</h2>
+    <ul>
+      <li>Tracks dynamic lists (catalogs, cart items, posts) by stable item key without recreating unchanged DOM nodes.</li>
+      <li>Updates per-item reactive signals in place when data changes or reorders.</li>
+      <li>Automatically runs dispose() on removed items so zero effects or listeners leak.</li>
+    </ul>
+  </section>
+  <section class="card">
+    <span class="badge badge-green">4. GRAB 1.0 Data Binding</span>
+    <h2>createGrabClient, useQuery & useMutation</h2>
+    <ul>
+      <li>Same-origin credentials by default, bounded 10s–60s timeouts, and mandatory CSRF tokens on POST/PUT/PATCH/DELETE.</li>
+      <li>useQuery uses AbortController to cancel stale in-flight requests whenever parameters change, preventing race conditions.</li>
+      <li>useMutation and origin-checked connectSocketInvalidation trigger automatic tag-based query refetches.</li>
+    </ul>
+  </section>
+  </main>
+
+  <section class="card">
+    <span class="badge badge-teal">GRAB 1.0 + Grisp Integration Example</span>
+    <h2>Zero-Restart Static Fingerprinting with <code>server.asset</code></h2>
+    <p>Grisp serves compiled stylesheets and Grex JS modules from <code>/static/grex/</code> with automatic SHA-256 <code>?v=</code> cache-busting:</p>
+    <pre>const api = createGrabClient({ csrfToken: () => sessionCsrf });
+const catalog = useQuery(api, "/api/catalog", { tags: ["catalog"] });
+const placeOrder = useMutation(api, "/api/orders", { invalidates: ["catalog"] });</pre>
+  </section>
+
+  <footer>
+    <span>Grex JS — Reactive Frontend Runtime for GRAB &amp; Grisp</span>
+    <span>Verified Release Guide · v0.3.0 · MIT License</span>
+  </footer>
+</body>
+</html>

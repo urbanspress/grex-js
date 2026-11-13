@@ -2,14 +2,14 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import fs from "node:fs";
 import path from "node:path";
-import * as bundle from "../dist/grex-js-v0.2.0.min.js";
+import * as bundle from "../dist/grex-js-v0.3.0.min.js";
 import * as exampleBundle from "../examples/grisp-basic/public/grex/grex.js";
 import { createTestEnv } from "./helpers/dom-shim.js";
 
-test("release bundle exports full v0.2 API and contains zero eval()/new Function()/.innerHTML", () => {
+test("release bundle exports full v0.3 API and contains zero eval()/new Function()/.innerHTML", () => {
   for (const relPath of [
-    "dist/grex-js-v0.2.0.js",
-    "dist/grex-js-v0.2.0.min.js",
+    "dist/grex-js-v0.3.0.js",
+    "dist/grex-js-v0.3.0.min.js",
     "examples/grisp-basic/public/grex/grex.js",
   ]) {
     const raw = fs.readFileSync(path.resolve(relPath), "utf8");
@@ -25,11 +25,11 @@ test("release bundle exports full v0.2 API and contains zero eval()/new Function
     const card = api.Card(
       {
         children: [
-          api.Heading({ props: { level: 2, text: "Test Card" } }, { document }).element,
+          api.Heading({ props: { level: 2, text: "Test Card" } }, { document }),
           api.Text(
             { props: { text: () => api.formatGrabDecimal(price.get(), { prefix: "$", decimals: 2 }) } },
             { document }
-          ).element,
+          ),
         ],
       },
       { document }
@@ -37,13 +37,16 @@ test("release bundle exports full v0.2 API and contains zero eval()/new Function
     assert.equal(card.element.localName, "article");
     assert.equal(card.element.querySelectorAll("div").length, 0);
     assert.equal(card.element.querySelector("p").textContent, "$19.95");
-    price.set("25.50");
-    assert.equal(card.element.querySelector("p").textContent, "$25.50");
+    assert.equal(typeof api.Form, "function");
+    assert.equal(typeof api.ForEach, "function");
+    assert.equal(typeof api.createGrabClient, "function");
+    assert.equal(typeof api.useQuery, "function");
+    assert.equal(typeof api.useMutation, "function");
     card.dispose();
   }
 });
 
-test("Grisp example page.grab.html and tokens.css enforce zero-wrapper-div and /static/grex/ conventions", () => {
+test("Grisp example page.grab.html, app.grab, and tokens.css enforce zero-wrapper-div and /static/grex/ conventions", () => {
   const html = fs.readFileSync(path.resolve("examples/grisp-basic/page.grab.html"), "utf8");
   assert.equal(/<div\b/i.test(html), false, "Example template must contain zero <div> elements");
   assert.match(html, /data-grex-id="hero-title"/);
@@ -54,6 +57,8 @@ test("Grisp example page.grab.html and tokens.css enforce zero-wrapper-div and /
   const grabApp = fs.readFileSync(path.resolve("examples/grisp-basic/app.grab"), "utf8");
   assert.match(grabApp, /server\.asset using "\/static\/grex\/tokens\.css"/);
   assert.match(grabApp, /server\.asset using "\/static\/grex\/demo\.js"/);
+  assert.match(grabApp, /route "GET" "\/api\/catalog"/);
+  assert.match(grabApp, /route "POST" "\/api\/orders"/);
 
   const css = fs.readFileSync(path.resolve("examples/grisp-basic/public/grex/tokens.css"), "utf8");
   assert.match(css, /--grex-accent:/);

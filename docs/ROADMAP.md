@@ -38,7 +38,7 @@
 ---
 
 ## `v0.3` — Interactive UI Elements, Forms & `grab.api.json` Data Binding
-**Status:** Approved Target; Specification in Review ([`specifications/GREX-JS-SPEC-003.md`](../specifications/GREX-JS-SPEC-003.md))
+**Status:** Complete (`v0.3.0` Released 2026-11-13 — [`specifications/GREX-JS-SPEC-003.md`](../specifications/GREX-JS-SPEC-003.md))
 
 - **Interactive UI Elements (`7`):** `Form` (CSRF + submit state), `Input` (label association + exact `GrabDecimal`/`GrabInteger` string handling), `Select`, `Tabs` (roving tabindex + Left/Right/Home/End keyboard nav), `Accordion` (native `<details>`/`<summary>`), `Modal` (native `<dialog>` + focus trap + Escape), and `Nav` (`aria-current="page"` + mobile toggle).
 - **Keyed Repeaters (`ForEach`):** Stable-key collection reconciliation updating items in place and disposing removed item effects without recreating unchanged DOM nodes.

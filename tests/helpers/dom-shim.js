@@ -1,7 +1,7 @@
 /**
- * Minimal zero-dependency DOM & Window shim for Node unit/DOM/security tests.
+ * Minimal zero-dependency DOM & Window shim for Node unit/DOM/security/a11y tests.
  * Tracks node identity, textContent, innerHTML (throws/tracks if ever touched),
- * attributes, CSSStyleDeclaration, EventTarget, and postMessage.
+ * attributes, CSSStyleDeclaration, EventTarget, form/dialog controls, focus, and postMessage.
  */
 
 class StyleShim {
@@ -30,6 +30,21 @@ class NodeShim {
     this._listeners = new Map();
   }
 
+  get firstChild() {
+    return this.childNodes[0] || null;
+  }
+
+  get nextSibling() {
+    if (!this.parentNode) {
+      return null;
+    }
+    const idx = this.parentNode.childNodes.indexOf(this);
+    if (idx === -1 || idx + 1 >= this.parentNode.childNodes.length) {
+      return null;
+    }
+    return this.parentNode.childNodes[idx + 1];
+  }
+
   appendChild(child) {
     if (child.parentNode) {
       const idx = child.parentNode.childNodes.indexOf(child);
@@ -42,8 +57,26 @@ class NodeShim {
     return child;
   }
 
-  get firstChild() {
-    return this.childNodes[0] || null;
+  insertBefore(newChild, refChild) {
+    if (!refChild) {
+      return this.appendChild(newChild);
+    }
+    if (newChild === refChild) {
+      return newChild;
+    }
+    if (newChild.parentNode) {
+      const oldIdx = newChild.parentNode.childNodes.indexOf(newChild);
+      if (oldIdx !== -1) {
+        newChild.parentNode.childNodes.splice(oldIdx, 1);
+      }
+    }
+    const refIdx = this.childNodes.indexOf(refChild);
+    if (refIdx === -1) {
+      return this.appendChild(newChild);
+    }
+    newChild.parentNode = this;
+    this.childNodes.splice(refIdx, 0, newChild);
+    return newChild;
   }
 
   removeChild(child) {
@@ -53,6 +86,12 @@ class NodeShim {
       child.parentNode = null;
     }
     return child;
+  }
+
+  remove() {
+    if (this.parentNode) {
+      this.parentNode.removeChild(this);
+    }
   }
 
   addEventListener(type, fn) {
@@ -70,14 +109,25 @@ class NodeShim {
   }
 
   dispatchEvent(event) {
-    const set = this._listeners.get(event.type);
+    const ev = event && typeof event === "object" ? event : { type: String(event) };
+    if (!ev.target) {
+      ev.target = this;
+    }
+    ev.currentTarget = this;
+    if (typeof ev.preventDefault !== "function") {
+      ev.defaultPrevented = false;
+      ev.preventDefault = () => {
+        ev.defaultPrevented = true;
+      };
+    }
+    const set = this._listeners.get(ev.type);
     if (!set) {
-      return true;
+      return !ev.defaultPrevented;
     }
     for (const fn of Array.from(set)) {
-      fn(event);
+      fn(ev);
     }
-    return true;
+    return !ev.defaultPrevented;
   }
 
   listenerCount(type) {
@@ -108,14 +158,74 @@ class ElementShim extends NodeShim {
     this._attrs = new Map();
     this.style = new StyleShim();
     this.innerHTMLWriteCount = 0;
+    this._value = "";
+    this._open = false;
+    this.showModalCount = 0;
+    this.closeCount = 0;
+  }
+
+  get children() {
+    return this.childNodes.filter((c) => c.nodeType === 1);
   }
 
   get attributes() {
     return Array.from(this._attrs.entries()).map(([name, value]) => ({ name, value }));
   }
 
+  get value() {
+    if (this.localName === "select") {
+      if (this._value !== "") {
+        return this._value;
+      }
+      const firstOpt = this.querySelector("option");
+      return firstOpt ? (firstOpt.getAttribute("value") ?? firstOpt.textContent) : "";
+    }
+    return this._value;
+  }
+
+  set value(v) {
+    this._value = v == null ? "" : String(v);
+  }
+
+  get open() {
+    return this._open || this.hasAttribute("open");
+  }
+
+  set open(val) {
+    this._open = Boolean(val);
+    if (this._open) {
+      this._attrs.set("open", "");
+    } else {
+      this._attrs.delete("open");
+    }
+  }
+
+  showModal() {
+    this.showModalCount += 1;
+    this.open = true;
+  }
+
+  close() {
+    this.closeCount += 1;
+    this.open = false;
+    this.dispatchEvent({ type: "close" });
+  }
+
+  focus() {
+    if (this.ownerDocument) {
+      this.ownerDocument.activeElement = this;
+    }
+  }
+
   setAttribute(name, value) {
-    this._attrs.set(String(name), String(value));
+    const k = String(name);
+    const v = String(value);
+    this._attrs.set(k, v);
+    if (k === "value") {
+      this._value = v;
+    } else if (k === "open") {
+      this._open = true;
+    }
   }
 
   getAttribute(name) {
@@ -123,7 +233,11 @@ class ElementShim extends NodeShim {
   }
 
   removeAttribute(name) {
-    this._attrs.delete(String(name));
+    const k = String(name);
+    this._attrs.delete(k);
+    if (k === "open") {
+      this._open = false;
+    }
   }
 
   hasAttribute(name) {
@@ -161,12 +275,12 @@ class ElementShim extends NodeShim {
   }
 
   querySelectorAll(selector) {
+    const parts = selector.split(",").map((s) => compileSimpleSelector(s));
     const results = [];
-    const matchFn = compileSimpleSelector(selector);
     const walk = (node) => {
       for (const child of node.childNodes) {
         if (child.nodeType === 1) {
-          if (matchFn(child)) {
+          if (parts.some((fn) => fn(child))) {
             results.push(child);
           }
           walk(child);
@@ -187,10 +301,29 @@ function compileSimpleSelector(selector) {
   if (s === "*") {
     return () => true;
   }
-  const attrMatch = /^\[([a-z0-9_-]+)="([^"]*)"\]$/i.exec(s);
-  if (attrMatch) {
-    const [, attrName, attrVal] = attrMatch;
-    return (el) => el.getAttribute(attrName) === attrVal;
+  const tagAttrMatch = /^([a-z0-9_-]+)?\[([a-z0-9_-]+)(?:="([^"]*)")?\](?::not\(\[([a-z0-9_-]+)\]\))?$/i.exec(s);
+  if (tagAttrMatch) {
+    const [, tag, attrName, attrVal, notAttr] = tagAttrMatch;
+    return (el) => {
+      if (tag && el.localName !== tag.toLowerCase()) return false;
+      if (attrVal !== undefined) {
+        if (el.getAttribute(attrName) !== attrVal) return false;
+      } else if (!el.hasAttribute(attrName)) {
+        return false;
+      }
+      if (notAttr && el.hasAttribute(notAttr)) return false;
+      return true;
+    };
+  }
+  const tagNotMatch = /^([a-z0-9_-]+):not\(\[([a-z0-9_-]+)\]\)$/i.exec(s);
+  if (tagNotMatch) {
+    const [, tag, notAttr] = tagNotMatch;
+    return (el) => el.localName === tag.toLowerCase() && !el.hasAttribute(notAttr);
+  }
+  const idMatch = /^#([a-z0-9_-]+)$/i.exec(s);
+  if (idMatch) {
+    const id = idMatch[1];
+    return (el) => el.getAttribute("id") === id;
   }
   const tag = s.toLowerCase();
   return (el) => el.localName === tag;
@@ -198,6 +331,7 @@ function compileSimpleSelector(selector) {
 
 export function createTestEnv() {
   const doc = {
+    activeElement: null,
     createElement(tag) {
       return new ElementShim(tag, doc);
     },
@@ -206,6 +340,9 @@ export function createTestEnv() {
     },
     createTextNode(text) {
       return new TextShim(text, doc);
+    },
+    getElementById(id) {
+      return doc.querySelector(`[id="${id}"]`);
     },
     documentElement: null,
     querySelectorAll(selector) {

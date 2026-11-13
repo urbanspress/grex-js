@@ -243,6 +243,66 @@ GUIDES = [
             '});'
         ),
     },
+    {
+        "version": "v0.3.0",
+        "date": "2026-11-13",
+        "title": "Grex JS v0.3.0 — Interactive Elements, Forms & grab.api.json Data Binding",
+        "subtitle": "Plain-English Walkthrough of Forms, Keyboard-Accessible Widgets, Keyed Repeaters & GRAB APIs",
+        "lead": (
+            "Grex JS v0.3.0 adds 7 accessible interactive and form components, keyed collection repeaters (ForEach), "
+            "and direct GRAB 1.0 grab.api.json data binding (createGrabClient, useQuery, useMutation) with automatic "
+            "CSRF protection, AbortController race-condition cancellation, and exact base-10 decimal precision."
+        ),
+        "sections": [
+            (
+                "badge-teal",
+                "1. Forms & Exact Decimals",
+                "Form, Input & Select (Zero Wrapper <div>s)",
+                [
+                    "Form prevents double-submissions, validates action URLs, and attaches CSRF headers/hidden fields automatically.",
+                    "Input pairs <label> and <input>/<textarea> cleanly with <small role=\"alert\"> validation messages and aria-invalid.",
+                    "GrabDecimal / GrabInteger inputs preserve exact base-10 strings like \"19.95\" and \"19.90\" without IEEE-754 float rounding.",
+                    "Select supports flat <option> lists and <optgroup> groups bound to reactive signals.",
+                ],
+            ),
+            (
+                "badge-blue",
+                "2. Accessible Widgets",
+                "Tabs, Accordion, Modal & Nav",
+                [
+                    "Tabs implements WAI-ARIA role=\"tablist\"/\"tab\"/\"tabpanel\" with ArrowLeft/ArrowRight/Home/End keyboard navigation and roving tabindex.",
+                    "Accordion uses native HTML5 <details> + <summary> (zero JS required for basic toggle) with optional singleOpen mode.",
+                    "Modal uses native <dialog> with showModal(), Tab/Shift+Tab focus trapping, Escape dismissal, and trigger focus restoration.",
+                    "Nav validates all links, supports mobile toggle buttons (aria-expanded), and sets aria-current=\"page\" reactively.",
+                ],
+            ),
+            (
+                "badge-amber",
+                "3. Keyed Repeaters",
+                "ForEach Collection Reconciliation",
+                [
+                    "Tracks dynamic lists (catalogs, cart items, posts) by stable item key without recreating unchanged DOM nodes.",
+                    "Updates per-item reactive signals in place when data changes or reorders.",
+                    "Automatically runs dispose() on removed items so zero effects or listeners leak.",
+                ],
+            ),
+            (
+                "badge-green",
+                "4. GRAB 1.0 Data Binding",
+                "createGrabClient, useQuery & useMutation",
+                [
+                    "Same-origin credentials by default, bounded 10s–60s timeouts, and mandatory CSRF tokens on POST/PUT/PATCH/DELETE.",
+                    "useQuery uses AbortController to cancel stale in-flight requests whenever parameters change, preventing race conditions.",
+                    "useMutation and origin-checked connectSocketInvalidation trigger automatic tag-based query refetches.",
+                ],
+            ),
+        ],
+        "snippet": (
+            'const api = createGrabClient({ csrfToken: () => sessionCsrf });\n'
+            'const catalog = useQuery(api, "/api/catalog", { tags: ["catalog"] });\n'
+            'const placeOrder = useMutation(api, "/api/orders", { invalidates: ["catalog"] });'
+        ),
+    },
 ]
 
 

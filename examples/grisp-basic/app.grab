@@ -9,3 +9,16 @@ route "GET" "/"
   set demo_js_url to server.asset using "/static/grex/demo.js"
   give back server.html using "page.grab.html", record {title: store_name, price: base_price, css_url: css_url, app_css_url: app_css_url, demo_js_url: demo_js_url}
 end
+
+route "GET" "/api/catalog"
+  give back server.json using 200, record {store: store_name, currency: "USD", items: [record {id: "beanie", name: "Merino Wool Beanie", price: "19.95"}, record {id: "scarf", name: "Alpaca Knit Scarf", price: "34.50"}]}
+end
+
+route "POST" "/api/orders" using req
+  try
+    set order to server.parse_json using req
+    give back server.json using 201, record {accepted: yes, item_id: order.item_id, price: order.price}
+  catch err
+    give back server.json using 400, record {error: err.message}
+  end
+end

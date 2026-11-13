@@ -88,11 +88,11 @@ const LAYOUT_TAGS = Object.freeze({
   RichText: ["p", "article", "section", "span"],
 });
 
-function isReactive(val) {
+export function isReactive(val) {
   return Boolean(val && typeof val === "object" && typeof val.get === "function");
 }
 
-function readVal(val) {
+export function readVal(val) {
   if (isReactive(val)) {
     return val.get();
   }
@@ -128,7 +128,7 @@ function joinClasses(...parts) {
   return tokens.length > 0 ? tokens.join(" ") : undefined;
 }
 
-function buildBaseSpec(baseClass, config = {}) {
+export function buildBaseSpec(baseClass, config = {}) {
   const styleClass = getElementStyleClass(config);
   const attrs = { ...(config.attrs || {}) };
   if (typeof config.id === "string" && config.id.trim() !== "") {
@@ -145,7 +145,7 @@ function buildBaseSpec(baseClass, config = {}) {
   };
 }
 
-function appendChildren(parentEl, children, doc, disposers) {
+export function appendChildren(parentEl, children, doc, disposers) {
   if (!Array.isArray(children)) {
     return;
   }
@@ -169,6 +169,11 @@ function appendChildren(parentEl, children, doc, disposers) {
       const rendered = renderElement(child, { document: doc });
       parentEl.appendChild(rendered.element);
       disposers.push(rendered.dispose);
+    } else if (typeof child === "object" && child.element && child.element.nodeType) {
+      parentEl.appendChild(child.element);
+      if (typeof child.dispose === "function") {
+        disposers.push(child.dispose);
+      }
     } else if (typeof child === "object" && child.nodeType) {
       parentEl.appendChild(child);
     } else {
@@ -814,7 +819,7 @@ export function Icon(config = {}, options = {}) {
   };
 }
 
-export const ELEMENT_REGISTRY = Object.freeze({
+export const ELEMENT_REGISTRY = {
   Section,
   Container,
   Grid,
@@ -827,7 +832,18 @@ export const ELEMENT_REGISTRY = Object.freeze({
   Button,
   Image,
   Icon,
-});
+};
+
+/**
+ * Register additional semantic element factories (used by v0.3 interactive components).
+ * @param {string} typeName
+ * @param {Function} factory
+ */
+export function registerElementType(typeName, factory) {
+  if (typeof typeName === "string" && typeof factory === "function") {
+    ELEMENT_REGISTRY[typeName] = factory;
+  }
+}
 
 /**
  * Render a declarative GrexElementNode JSON object (v0.2) or raw v0.1 spec.

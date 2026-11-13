@@ -1,5 +1,5 @@
 /**
- * Grex JS v0.1 Public Entrypoint.
+ * Grex JS v0.2 Public Entrypoint.
  */
 
 export {
@@ -23,10 +23,14 @@ export {
 
 export {
   DEFAULT_BREAKPOINTS,
+  ALLOWED_STYLE_PROPERTIES,
   normalizeTokenName,
+  normalizeStyleProperty,
   validateTokenValue,
   applyTokens,
   compileTokenCss,
+  getElementStyleClass,
+  compileElementStyles,
 } from "./tokens.js";
 
 export {
@@ -34,6 +38,23 @@ export {
   renderElement,
   hydrate,
 } from "./dom.js";
+
+export {
+  Section,
+  Container,
+  Grid,
+  Stack,
+  Card,
+  Heading,
+  Text,
+  RichText,
+  Link,
+  Button,
+  Image,
+  Icon,
+  ELEMENT_REGISTRY,
+  renderNode,
+} from "./elements.js";
 
 export {
   PREVIEW_CHANNEL,

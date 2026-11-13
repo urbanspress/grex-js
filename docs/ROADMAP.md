@@ -24,7 +24,7 @@
 ---
 
 ## `v0.2` — Zero-Bloat Layout, Typography & Media Elements
-**Status:** Approved Target; Specification in Review ([`specifications/GREX-JS-SPEC-002.md`](../specifications/GREX-JS-SPEC-002.md))
+**Status:** Complete (`v0.2.0` Released 2026-11-13 — [`specifications/GREX-JS-SPEC-002.md`](../specifications/GREX-JS-SPEC-002.md))
 
 - **Semantic Layout Elements (`5`):** `Section`, `Container`, `Grid`, `Stack` (Flex), and `Card` rendering clean single-node semantic HTML with CSS Grid/Flexbox tokens and zero wrapper `<div>`s.
 - **Typography & Action Elements (`5`):** `Heading` (`h1`–`h6`), `Text` (preserving exact GRAB decimal wire strings), `RichText` (strictly allowlisted inline tags, zero `innerHTML`), `Link` (safe URL + `rel="noopener noreferrer"`), and `Button` (safe `type="button"` default + ARIA states).

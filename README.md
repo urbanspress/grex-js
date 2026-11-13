@@ -13,9 +13,9 @@
 
 ## Design Principles
 
-- **Zero Wrapper-Div Bloat:** Elements render directly to clean semantic HTML5 tags (`<section>`, `<header>`, `<article>`, `<button>`) without nested wrapper `<div>`s.
+- **Zero Wrapper-Div Bloat:** Elements render directly to clean semantic HTML5 tags (`<section>`, `<header>`, `<article>`, `<button>`, `<img>`, `<svg>`) without nested wrapper `<div>`s.
 - **Fluid Grisp & Docker Sync (`ADR-027b`):**
-  - *Split-Screen Live Preview:* Instant browser-side reactive signals and `--grex-*` CSS custom properties with zero server restarts.
+  - *Split-Screen Live Preview:* Instant browser-side reactive signals, `--grex-*` CSS custom properties, and allowlisted element styles with zero server restarts.
   - *Instant Publish Content:* Structured element JSON persisted via GRAB `use data` + `use cache` invalidation.
   - *Instant Publish Styles:* Compiled CSS written to a dedicated `/static/grex/` mount (compatible with `--read-only` Docker containers and Grisp `--reload`) and fingerprinted via `server.asset` `?v=<12-char-sha256>`.
 - **Exact GRAB Value Integrity (`ADR-025c`):** Preserves GRAB `GrabInteger` and `GrabDecimal` base-10 wire strings (e.g., `"19.95"`) without IEEE-754 float coercion.
@@ -23,8 +23,8 @@
 
 ## Repository Structure
 
-- `src/` — Zero-dependency ES modules (`signals.js`, `security.js`, `tokens.js`, `dom.js`, `bridge.js`, `index.js`).
-- `tests/` — Automated unit, DOM, XSS/CSP security, token, bridge, and release bundle tests (`npm test`).
+- `src/` — Zero-dependency ES modules (`signals.js`, `security.js`, `tokens.js`, `dom.js`, `elements.js`, `bridge.js`, `index.js`).
+- `tests/` — Automated unit, DOM, XSS/CSP security, element, token, bridge, and release bundle tests (`npm test`).
 - `examples/grisp-basic/` — Runnable GRAB 1.0 + Grisp `server.asset` & `--reload` example.
 - `scripts/build-release-assets.mjs` — Builds clean browser-ready bundles in `dist/`.
 - `docs/releases/` — Plain-English milestone walkthrough PDF generator (`generate_release_guides.py`) and PDFs.
@@ -32,7 +32,7 @@
 - `AGENTS.md` — Engineering rules, Two-Tier Model Routing, and Tandem Handoff Protocol.
 - `HANDOFF.md` — Tandem AI ownership tracker.
 - `docs/ROADMAP.md` — Milestone roadmap (`v0.1` through `v1.0.0`).
-- `specifications/` — Approved technical specifications (`GREX-JS-SPEC-001.md`).
+- `specifications/` — Approved technical specifications (`GREX-JS-SPEC-001.md`, `GREX-JS-SPEC-002.md`).
 - `LICENSE` — MIT License.
 
 ## Quick Verification
@@ -44,4 +44,4 @@ node scripts/build-release-assets.mjs
 
 ## Current Status
 
-**`v0.1.0` Released (Complete):** Core reactive signals (`signal`, `computed`, `effect`, `batch`), zero-wrapper-div semantic HTML renderer & `data-grex-*` selective hydration, `--grex-*` token compiler, origin-checked `GrexPreviewBridge`, and GRAB 1.0 `server.asset` integration verified. Next milestone: `v0.2` specification planning.
+**`v0.2.0` Released (Complete):** All 12 zero-wrapper-div native layout, typography, action, and media elements (`Section`, `Container`, `Grid`, `Stack`, `Card`, `Heading`, `Text`, `RichText`, `Link`, `Button`, `Image`, `Icon`), deterministic per-breakpoint `/static/grex/` CSS compiler, `GrexPreviewBridge` live style patching, and GRAB 1.0 `server.asset` integration verified. Next milestone: `v0.3` specification planning.

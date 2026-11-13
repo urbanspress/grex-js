@@ -1,7 +1,7 @@
 # GREX-JS-SPEC-002: Grex JS v0.2 Zero-Bloat Layout, Typography & Media Elements
 
-**Status:** Approved Target; Specification in Review (2026-11-13)
-**Version:** `0.2.0-draft`
+**Status:** Complete (Approved & Implemented 2026-11-13)
+**Version:** `0.2.0`
 **Date:** 2026-11-13
 **Aligned GRAB ADRs:** `ADR-014`, `ADR-017`, `ADR-018`, `ADR-025c`, `ADR-027a`, `ADR-027b`
 

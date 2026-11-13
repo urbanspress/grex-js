@@ -6,9 +6,9 @@
 
 import fs from "node:fs";
 import path from "node:path";
-import { compileTokenCss } from "../src/tokens.js";
+import { compileElementStyles, compileTokenCss } from "../src/tokens.js";
 
-const VERSION = "v0.1.0";
+const VERSION = "v0.2.0";
 const ROOT = path.resolve(".");
 const SRC_DIR = path.join(ROOT, "src");
 const DIST_DIR = path.join(ROOT, "dist");
@@ -19,6 +19,7 @@ const MODULE_ORDER = [
   "security.js",
   "tokens.js",
   "dom.js",
+  "elements.js",
   "bridge.js",
 ];
 
@@ -30,14 +31,15 @@ function stripLocalImports(source) {
 }
 
 function compactJs(source) {
-  // Strip block & line comments while preserving string literals safely
-  return source
-    .replace(/\/\*[\s\S]*?\*\//g, "")
-    .split(/\r?\n/)
-    .map((line) => line.trim())
-    .filter((line) => line !== "" && !line.startsWith("//"))
-    .join("\n")
-    .trim() + "\n";
+  return (
+    source
+      .replace(/\/\*[\s\S]*?\*\//g, "")
+      .split(/\r?\n/)
+      .map((line) => line.trim())
+      .filter((line) => line !== "" && !line.startsWith("//"))
+      .join("\n")
+      .trim() + "\n"
+  );
 }
 
 function buildBundle() {
@@ -51,7 +53,7 @@ function buildBundle() {
 }
 
 function buildDefaultTokensCss() {
-  return compileTokenCss({
+  const baseTokens = compileTokenCss({
     root: {
       "--grex-bg": "#f8fafc",
       "--grex-surface": "#ffffff",
@@ -73,6 +75,18 @@ function buildDefaultTokensCss() {
       },
     },
   });
+
+  const elementCss = compileElementStyles({
+    type: "Grid",
+    id: "catalog-grid",
+    styles: {
+      base: { display: "grid", gridTemplateColumns: "repeat(2, minmax(0, 1fr))", gap: "24px" },
+      tablet: { gridTemplateColumns: "repeat(2, minmax(0, 1fr))", gap: "16px" },
+      mobile: { gridTemplateColumns: "1fr", gap: "12px" },
+    },
+  });
+
+  return `${baseTokens}\n${elementCss}`;
 }
 
 fs.mkdirSync(DIST_DIR, { recursive: true });

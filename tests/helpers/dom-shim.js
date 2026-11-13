@@ -42,6 +42,19 @@ class NodeShim {
     return child;
   }
 
+  get firstChild() {
+    return this.childNodes[0] || null;
+  }
+
+  removeChild(child) {
+    const idx = this.childNodes.indexOf(child);
+    if (idx !== -1) {
+      this.childNodes.splice(idx, 1);
+      child.parentNode = null;
+    }
+    return child;
+  }
+
   addEventListener(type, fn) {
     if (!this._listeners.has(type)) {
       this._listeners.set(type, new Set());
@@ -87,10 +100,11 @@ class TextShim extends NodeShim {
 }
 
 class ElementShim extends NodeShim {
-  constructor(tagName, ownerDocument) {
+  constructor(tagName, ownerDocument, namespaceURI = "http://www.w3.org/1999/xhtml") {
     super(1, ownerDocument);
     this.tagName = String(tagName).toUpperCase();
     this.localName = String(tagName).toLowerCase();
+    this.namespaceURI = namespaceURI;
     this._attrs = new Map();
     this.style = new StyleShim();
     this.innerHTMLWriteCount = 0;
@@ -186,6 +200,9 @@ export function createTestEnv() {
   const doc = {
     createElement(tag) {
       return new ElementShim(tag, doc);
+    },
+    createElementNS(ns, tag) {
+      return new ElementShim(tag, doc, ns);
     },
     createTextNode(text) {
       return new TextShim(text, doc);

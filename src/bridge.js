@@ -6,7 +6,7 @@
 
 import { batch } from "./signals.js";
 import { GrexSecurityError, sanitizeAttributeValue, setSafeText } from "./security.js";
-import { normalizeTokenName, validateTokenValue } from "./tokens.js";
+import { normalizeStyleProperty, normalizeTokenName, validateTokenValue } from "./tokens.js";
 
 export const PREVIEW_CHANNEL = "grex-preview-v1";
 
@@ -93,6 +93,21 @@ export function createPreviewBridge(options) {
           el.style.removeProperty(tokenName);
         } else {
           el.style.setProperty(tokenName, tokenValue);
+        }
+        return true;
+      }
+
+      case "patch-style": {
+        const el = resolveTargetElement(op.targetId, elements, root);
+        if (!el || !el.style) {
+          throw new GrexSecurityError(`Target element "${String(op.targetId)}" not found for patch-style.`);
+        }
+        const cssProp = normalizeStyleProperty(op.prop);
+        const cssValue = validateTokenValue(op.value);
+        if (cssValue === "") {
+          el.style.removeProperty(cssProp);
+        } else {
+          el.style.setProperty(cssProp, cssValue);
         }
         return true;
       }

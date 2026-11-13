@@ -181,7 +181,68 @@ GUIDES = [
             '  give back server.html using "page.grab.html", record {title: "Northbound Goods", price: "19.95", css_url: css_url, demo_js_url: demo_js_url}\n'
             'end'
         ),
-    }
+    },
+    {
+        "version": "v0.2.0",
+        "date": "2026-11-13",
+        "title": "Grex JS v0.2.0 — Zero-Bloat Layout, Typography & Media Elements",
+        "subtitle": "Plain-English Walkthrough of the 12 Semantic Elements & Per-Breakpoint CSS Compiler",
+        "lead": (
+            "Grex JS v0.2.0 introduces 12 native semantic HTML5 elements—Layout, Typography, Actions, and Media—"
+            "with built-in accessibility defaults, strict zero-innerHTML XSS sanitization, and deterministic "
+            "base / tablet / mobile CSS compilation under /static/grex/."
+        ),
+        "sections": [
+            (
+                "badge-teal",
+                "1. Layout Elements (5)",
+                "Section, Container, Grid, Stack & Card",
+                [
+                    "Every layout element renders a single semantic HTML5 node (<section>, <article>, <header>, <nav>, <ul>) with zero .grex-wrapper or .grex-inner <div> bloat.",
+                    "Container centers max-width content directly on the root node; Grid and Stack configure CSS Grid and Flexbox via --grex-* custom properties.",
+                    "renderNode() turns declarative JSON element trees into live reactive DOM nodes with deterministic cleanup.",
+                ],
+            ),
+            (
+                "badge-blue",
+                "2. Typography & Actions (5)",
+                "Heading, Text, RichText, Link & Button",
+                [
+                    "Heading enforces valid <h1>–<h6> levels; Text preserves exact GRAB GrabInteger/GrabDecimal strings like \"19.95\" without float coercion.",
+                    "RichText parses inline markup or structured nodes strictly via createElement/createTextNode—zero innerHTML, stripping <script>, <style>, <iframe>, <div>, and on* handlers.",
+                    "Link blocks unsafe URLs and enforces rel=\"noopener noreferrer\" on external/_blank links; Button defaults safely to type=\"button\".",
+                ],
+            ),
+            (
+                "badge-amber",
+                "3. Media Elements (2)",
+                "Image & Icon with Accessibility & SVG Safety",
+                [
+                    "Image validates both src and srcset URLs, requires alt (or decorative: true with aria-hidden=\"true\"), defaults to loading=\"lazy\" + decoding=\"async\", and emits width/height to prevent layout shift (CLS).",
+                    "Icon builds <svg> strictly via createElementNS from an allowlist of safe geometry tags (path, circle, rect, line, polyline, polygon) or same-document #id <use> symbols—never raw SVG innerHTML.",
+                ],
+            ),
+            (
+                "badge-green",
+                "4. Breakpoint CSS & Live Preview",
+                "/static/grex/ Compilation & GrexPreviewBridge",
+                [
+                    "compileElementStyles() compiles per-element base, tablet (@media max-width: 1024px), and mobile (@media max-width: 640px) styles cleanly for /static/grex/ and GRAB server.asset.",
+                    "GrexPreviewBridge supports live origin-checked patch-style and patch-token updates in browser memory with zero Grisp server restarts.",
+                ],
+            ),
+        ],
+        "snippet": (
+            'const css = compileElementStyles({\n'
+            '  type: "Grid",\n'
+            '  id: "catalog-grid",\n'
+            '  styles: {\n'
+            '    base: { display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: "24px" },\n'
+            '    mobile: { gridTemplateColumns: "1fr", gap: "12px" }\n'
+            '  }\n'
+            '});'
+        ),
+    },
 ]
 
 

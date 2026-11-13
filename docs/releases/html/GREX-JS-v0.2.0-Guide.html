@@ -1,0 +1,176 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Grex JS v0.2.0 — Zero-Bloat Layout, Typography & Media Elements</title>
+  <style>
+:root {
+  --ink: #0f172a;
+  --muted: #475569;
+  --line: #cbd5e1;
+  --bg-page: #f8fafc;
+  --surface: #ffffff;
+  --teal: #0d9488;
+  --teal-soft: #ccfbf1;
+  --blue: #0284c7;
+  --blue-soft: #e0f2fe;
+  --green: #15803d;
+  --green-soft: #dcfce7;
+  --amber: #b45309;
+  --amber-soft: #fef3c7;
+}
+* { box-sizing: border-box; }
+@page { size: A4; margin: 12mm 14mm 14mm 14mm; }
+body {
+  margin: 0;
+  padding: 0;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  color: var(--ink);
+  background: var(--bg-page);
+  line-height: 1.55;
+  font-size: 13.5px;
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+}
+.header-hero {
+  background: linear-gradient(135deg, #0f172a 0%, #1e293b 60%, #0d9488 100%);
+  color: #ffffff;
+  border-radius: 12px;
+  padding: 24px 28px;
+  margin-bottom: 18px;
+}
+.header-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+.version-pill {
+  background: #38bdf8;
+  color: #0f172a;
+  font-weight: 800;
+  font-size: 12px;
+  padding: 4px 12px;
+  border-radius: 999px;
+}
+.date-tag { font-size: 11.5px; color: #cbd5e1; }
+h1 { margin: 0 0 6px 0; font-size: 25px; color: #ffffff; }
+.subtitle { font-size: 14.5px; color: #5eead4; font-weight: 600; margin: 0 0 10px 0; }
+.lead-p { margin: 0; color: #e2e8f0; font-size: 13.5px; }
+.card {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 16px 20px;
+  margin-bottom: 14px;
+  page-break-inside: avoid;
+}
+h2 { margin: 0 0 8px 0; font-size: 16px; color: var(--ink); }
+p { margin: 0 0 8px 0; color: var(--muted); }
+ul { margin: 6px 0 0 0; padding-left: 18px; color: var(--muted); }
+li { margin-bottom: 5px; }
+.grid-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+.badge {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 6px;
+  font-size: 11.5px;
+  font-weight: 700;
+  margin-bottom: 6px;
+}
+.badge-teal { background: var(--teal-soft); color: #115e59; }
+.badge-blue { background: var(--blue-soft); color: #075985; }
+.badge-green { background: var(--green-soft); color: var(--green); }
+.badge-amber { background: var(--amber-soft); color: var(--amber); }
+pre {
+  background: #0f172a;
+  color: #e2e8f0;
+  padding: 12px 14px;
+  border-radius: 8px;
+  font-size: 11.5px;
+  overflow-x: auto;
+  margin: 8px 0 0 0;
+}
+footer {
+  margin-top: 14px;
+  padding-top: 10px;
+  border-top: 1px solid var(--line);
+  display: flex;
+  justify-content: space-between;
+  font-size: 11.5px;
+  color: var(--muted);
+}
+</style>
+</head>
+<body>
+  <header class="header-hero">
+    <div class="header-top">
+      <span class="version-pill">Grex JS v0.2.0</span>
+      <span class="date-tag">Released 2026-11-13 · urbanspress/grex-js</span>
+    </div>
+    <h1>Grex JS v0.2.0 — Zero-Bloat Layout, Typography & Media Elements</h1>
+    <p class="subtitle">Plain-English Walkthrough of the 12 Semantic Elements & Per-Breakpoint CSS Compiler</p>
+    <p class="lead-p">Grex JS v0.2.0 introduces 12 native semantic HTML5 elements—Layout, Typography, Actions, and Media—with built-in accessibility defaults, strict zero-innerHTML XSS sanitization, and deterministic base / tablet / mobile CSS compilation under /static/grex/.</p>
+  </header>
+
+  <main class="grid-2">
+  <section class="card">
+    <span class="badge badge-teal">1. Layout Elements (5)</span>
+    <h2>Section, Container, Grid, Stack & Card</h2>
+    <ul>
+      <li>Every layout element renders a single semantic HTML5 node (<section>, <article>, <header>, <nav>, <ul>) with zero .grex-wrapper or .grex-inner <div> bloat.</li>
+      <li>Container centers max-width content directly on the root node; Grid and Stack configure CSS Grid and Flexbox via --grex-* custom properties.</li>
+      <li>renderNode() turns declarative JSON element trees into live reactive DOM nodes with deterministic cleanup.</li>
+    </ul>
+  </section>
+  <section class="card">
+    <span class="badge badge-blue">2. Typography & Actions (5)</span>
+    <h2>Heading, Text, RichText, Link & Button</h2>
+    <ul>
+      <li>Heading enforces valid <h1>–<h6> levels; Text preserves exact GRAB GrabInteger/GrabDecimal strings like "19.95" without float coercion.</li>
+      <li>RichText parses inline markup or structured nodes strictly via createElement/createTextNode—zero innerHTML, stripping <script>, <style>, <iframe>, <div>, and on* handlers.</li>
+      <li>Link blocks unsafe URLs and enforces rel="noopener noreferrer" on external/_blank links; Button defaults safely to type="button".</li>
+    </ul>
+  </section>
+  <section class="card">
+    <span class="badge badge-amber">3. Media Elements (2)</span>
+    <h2>Image & Icon with Accessibility & SVG Safety</h2>
+    <ul>
+      <li>Image validates both src and srcset URLs, requires alt (or decorative: true with aria-hidden="true"), defaults to loading="lazy" + decoding="async", and emits width/height to prevent layout shift (CLS).</li>
+      <li>Icon builds <svg> strictly via createElementNS from an allowlist of safe geometry tags (path, circle, rect, line, polyline, polygon) or same-document #id <use> symbols—never raw SVG innerHTML.</li>
+    </ul>
+  </section>
+  <section class="card">
+    <span class="badge badge-green">4. Breakpoint CSS & Live Preview</span>
+    <h2>/static/grex/ Compilation & GrexPreviewBridge</h2>
+    <ul>
+      <li>compileElementStyles() compiles per-element base, tablet (@media max-width: 1024px), and mobile (@media max-width: 640px) styles cleanly for /static/grex/ and GRAB server.asset.</li>
+      <li>GrexPreviewBridge supports live origin-checked patch-style and patch-token updates in browser memory with zero Grisp server restarts.</li>
+    </ul>
+  </section>
+  </main>
+
+  <section class="card">
+    <span class="badge badge-teal">GRAB 1.0 + Grisp Integration Example</span>
+    <h2>Zero-Restart Static Fingerprinting with <code>server.asset</code></h2>
+    <p>Grisp serves compiled stylesheets and Grex JS modules from <code>/static/grex/</code> with automatic SHA-256 <code>?v=</code> cache-busting:</p>
+    <pre>const css = compileElementStyles({
+  type: "Grid",
+  id: "catalog-grid",
+  styles: {
+    base: { display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: "24px" },
+    mobile: { gridTemplateColumns: "1fr", gap: "12px" }
+  }
+});</pre>
+  </section>
+
+  <footer>
+    <span>Grex JS — Reactive Frontend Runtime for GRAB &amp; Grisp</span>
+    <span>Verified Release Guide · v0.2.0 · MIT License</span>
+  </footer>
+</body>
+</html>

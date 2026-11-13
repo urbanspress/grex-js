@@ -24,11 +24,12 @@
 ---
 
 ## `v0.2` — Zero-Bloat Layout, Typography & Media Elements
-**Status:** Planned
+**Status:** Approved Target; Specification in Review ([`specifications/GREX-JS-SPEC-002.md`](../specifications/GREX-JS-SPEC-002.md))
 
-- **Semantic Layout Elements:** `Section`, `Container`, `Grid`, `Stack` (Flex), and `Card` rendering clean single-node semantic HTML with CSS Grid/Flexbox tokens.
-- **Typography & Media Elements:** `Heading`, `Text`, `RichText` (sanitized allowlist), `Link`, `Button`, `Image` (responsive `srcset`/lazy loading), and `Icon`.
-- **Per-Breakpoint Style Overrides:** Desktop, Tablet, Mobile, and custom breakpoint token overrides compiled cleanly to `/static/grex/`.
+- **Semantic Layout Elements (`5`):** `Section`, `Container`, `Grid`, `Stack` (Flex), and `Card` rendering clean single-node semantic HTML with CSS Grid/Flexbox tokens and zero wrapper `<div>`s.
+- **Typography & Action Elements (`5`):** `Heading` (`h1`–`h6`), `Text` (preserving exact GRAB decimal wire strings), `RichText` (strictly allowlisted inline tags, zero `innerHTML`), `Link` (safe URL + `rel="noopener noreferrer"`), and `Button` (safe `type="button"` default + ARIA states).
+- **Media Elements (`2`):** `Image` (URL/`srcset` validation, `alt`, `loading="lazy"`, `width`/`height` CLS prevention) and `Icon` (safe SVG/symbol allowlist via `createElementNS`, zero `innerHTML`).
+- **Per-Breakpoint Style Overrides:** `base`, `tablet`, and `mobile` style overrides compiled deterministically to `/static/grex/` CSS (`server.asset` `?v=<12-char-sha256>`) and live-patched via `GrexPreviewBridge`.
 - **Acceptance Criteria:**
   1. Every element renders a single semantic HTML root node with zero wrapper `<div>` bloat.
   2. Responsive `--grex-*` breakpoint CSS compiles deterministically to `/static/grex/` and passes `server.asset` cache-busting verification.

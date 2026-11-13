@@ -38,12 +38,11 @@
 ---
 
 ## `v0.3` — Interactive UI Elements, Forms & `grab.api.json` Data Binding
-**Status:** Planned
+**Status:** Approved Target; Specification in Review ([`specifications/GREX-JS-SPEC-003.md`](../specifications/GREX-JS-SPEC-003.md))
 
-- **Interactive UI Elements:** `Form`, `Input`, `Select`, `Tabs`, `Accordion`, `Modal`, and `Nav` with built-in reactive state.
-- **Dynamic Repeaters & Query Loops:** Keyed list rendering bound to GRAB `grab.api.json` typed contracts (`ADR-025c`), `use data`, and `use cache` JSON endpoints.
-- **Exact Wire Format & Same-Origin Safety:** Preserves `GrabInteger` / `GrabDecimal` base-10 wire strings in form inputs, repeaters, and currency displays; uses `AbortSignal` and same-origin CSRF/CORS-safe fetch defaults.
-- **Instant Publish Content:** Structured element JSON persistence with GRAB `use cache` invalidation and zero Grisp restarts.
+- **Interactive UI Elements (`7`):** `Form` (CSRF + submit state), `Input` (label association + exact `GrabDecimal`/`GrabInteger` string handling), `Select`, `Tabs` (roving tabindex + Left/Right/Home/End keyboard nav), `Accordion` (native `<details>`/`<summary>`), `Modal` (native `<dialog>` + focus trap + Escape), and `Nav` (`aria-current="page"` + mobile toggle).
+- **Keyed Repeaters (`ForEach`):** Stable-key collection reconciliation updating items in place and disposing removed item effects without recreating unchanged DOM nodes.
+- **GRAB `grab.api.json` Data Binding (`createGrabClient`, `useQuery`, `useMutation`):** Same-origin defaults, per-call CSRF enforcement, `AbortController` race-condition cancellation, exact `GrabInteger`/`GrabDecimal` wire string preservation, and `use cache`/`use sockets` invalidation hooks.
 - **Acceptance Criteria:**
   1. Keyed repeaters update, reorder, and dispose item effects cleanly without recreating unchanged DOM nodes.
   2. `grab.api.json` contract binding tests verify exact decimal string preservation (`"19.95"` stays `"19.95"`) and `AbortSignal` cancellation.

@@ -1,6 +1,6 @@
 # Grex JS Roadmap
 
-**Grex JS** is the lightweight reactive frontend runtime and zero-wrapper-div native UI element library powering **Grex Builder**, **GrabLab CMS**, and **Groxy AI** on top of **GRAB** and **Grisp**.
+**Grex JS** is the lightweight reactive frontend runtime and zero-wrapper-div native UI element library powering **Grex Theme Builder**, **GrabLab CMS**, and **Groxy AI** on top of **GRAB** and **Grisp**.
 
 ---
 
@@ -55,7 +55,7 @@
 
 - **Accessibility Audit & Focus Guardrails:** `auditAccessibility(tree)` / `auditDom(root)` verifying WCAG AA contrast (`>= 4.5:1`), `Image` `alt` text, `<label>` associations, heading hierarchy (`h1`–`h6`), and `:focus-visible` focus-ring guardrails aligned with `GRAB-DESIGN-SYSTEM.md`.
 - **Global Theme & Class Manager:** `createTheme` (light/dark `--grex-*` presets) and `createClassManager` (reusable Bricks-style classes) compiled deterministically to `/static/grex/`.
-- **Machine-Readable Element Catalog (`grex.elements.json`):** Deterministic JSON schema for all 20 Grex elements + `validateElementNode()` so **Grex Builder**, **GrabLab CMS**, and **Groxy AI** (`grab mcp`, `ADR-027a`) compose validated pages with zero hallucinated attributes.
+- **Machine-Readable Element Catalog (`grex.elements.json`):** Deterministic JSON schema for all 20 Grex elements + `validateElementNode()` so **Grex Theme Builder**, **GrabLab CMS**, and **Groxy AI** (`grab mcp`, `ADR-027a`) compose validated pages with zero hallucinated attributes.
 - **Acceptance Criteria:**
   1. Automated accessibility audit tests verify contrast, `alt`, `<label>`, heading hierarchy, and focus indicators.
   2. Global theme/class overrides resolve deterministically in both live `GrexPreviewBridge` mode and compiled `/static/grex/` CSS output.
@@ -65,7 +65,7 @@
 ## `v1.0.0` — Stable Element Schema, SemVer Freeze & Production Release
 **Status:** Complete — Ready for Release Approval ([`specifications/GREX-JS-SPEC-004.md`](../specifications/GREX-JS-SPEC-004.md))
 
-- **Stable `v1.0.0` Element Schema:** Versioned JSON element schema locked for **Grex Builder**, **GrabLab CMS**, and **Groxy AI** (`grab mcp`).
+- **Stable `v1.0.0` Element Schema:** Versioned JSON element schema locked for **Grex Theme Builder**, **GrabLab CMS**, and **Groxy AI** (`grab mcp`).
 - **SemVer `v1.x` Stability Freeze:** Public reactive API (`signal`, `computed`, `effect`, `batch`), `data-grex-*` hydration attributes, `--grex-*` token conventions, and `GrexPreviewBridge` message schema frozen for `v1.x`.
 - **Production Release Gates:**
   1. 100% passing unit, DOM, security/CSP, accessibility, and Grisp `--read-only` Docker + `server.asset` integration tests.

@@ -12,7 +12,7 @@
 **Grex JS `v0.3`** extends the `v0.1` reactive engine and `v0.2` semantic element library with **7 interactive & form components**, **keyed collection repeaters (`ForEach`)**, and **reactive `grab.api.json` data binding** (`createGrabClient`, `useQuery`, `useMutation`). Every component preserves zero-wrapper-div semantic HTML5, strict CSP/XSS safety, WAI-ARIA keyboard accessibility, and exact GRAB base-10 wire string integrity.
 
 ### Non-Goals for `v0.3`
-- No visual drag-and-drop editor UI (that belongs to **Grex Builder**).
+- No visual drag-and-drop editor UI (that belongs to **Grex Theme Builder**).
 - No global theme/class manager presets (that belongs to `v0.4`).
 - No `eval()`, `new Function()`, or unsafe `innerHTML` parsing.
 

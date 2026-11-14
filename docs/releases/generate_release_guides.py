@@ -124,7 +124,7 @@ GUIDES = [
         "title": "Grex JS v0.1.0 — Core Reactive Runtime & Zero-Wrapper-Div DOM Engine",
         "subtitle": "Plain-English Walkthrough for Store Owners, Designers & Developers",
         "lead": (
-            "Grex JS v0.1.0 delivers the lightweight, zero-build-step browser engine powering Grex Builder, "
+            "Grex JS v0.1.0 delivers the lightweight, zero-build-step browser engine powering Grex Theme Builder, "
             "GrabLab CMS, and Groxy AI on top of GRAB 1.0 and Grisp. Instead of wrapping every page element in "
             "layers of slow <div> tags, Grex JS updates only the exact text, attributes, or style tokens that change."
         ),
@@ -311,7 +311,7 @@ GUIDES = [
         "lead": (
             "Grex JS v0.4.0 completes the creator and AI safety layer: global light/dark design tokens via createTheme, "
             "reusable responsive styles via createClassManager, automated WCAG AA contrast and semantic accessibility checks "
-            "via auditAccessibility and auditDom, and the machine-readable grex.elements.json catalog for Groxy AI and Grex Builder."
+            "via auditAccessibility and auditDom, and the machine-readable grex.elements.json catalog for Groxy AI and Grex Theme Builder."
         ),
         "sections": [
             (
@@ -356,7 +356,7 @@ GUIDES = [
         "subtitle": "Plain-English Guide to the Complete Zero-Dependency GRAB + Grisp Frontend Runtime & 20-Element Catalog",
         "lead": (
             "Grex JS v1.0.0 freezes the v1.x public API, JSON element schema (grex.elements.json), and browser runtime bundles. "
-            "Built specifically for GRAB 1.0, Grisp, Grex Builder, GrabLab CMS, and Groxy AI, every element outputs clean semantic "
+            "Built specifically for GRAB 1.0, Grisp, Grex Theme Builder, GrabLab CMS, and Groxy AI, every element outputs clean semantic "
             "HTML5 with zero wrapper divs, zero eval() or innerHTML, and instant CSS updates via /static/grex/ and server.asset."
         ),
         "sections": [

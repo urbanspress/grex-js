@@ -13,7 +13,7 @@
 
 ### Non-Goals for `v0.1`
 - No JSX compiler or mandatory Node/Webpack/Vite build step to run in the browser (`ADR-014`).
-- No drag-and-drop visual editor UI (that belongs to **Grex Builder**).
+- No drag-and-drop visual editor UI (that belongs to **Grex Theme Builder**).
 - No server-side GRAB language changes (Grex JS consumes standard `.grab.html` markup, `/static/grex/` CSS, and `grab.api.json` / `use data` JSON served by Grisp).
 
 ---

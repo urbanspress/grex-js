@@ -1,6 +1,6 @@
 # Grex JS Engineering Instructions
 
-**Grex JS** is the lightweight reactive frontend runtime and zero-wrapper-div native UI element library powering **Grex Builder**, **GrabLab CMS**, and **Groxy AI** on top of **GRAB** and **Grisp**.
+**Grex JS** is the lightweight reactive frontend runtime and zero-wrapper-div native UI element library powering **Grex Theme Builder**, **GrabLab CMS**, and **Groxy AI** on top of **GRAB** and **Grisp**.
 
 ## Architecture & Scope
 - **Frontend Layer Only:** `grex-js` owns client-side reactive signals, fine-grained DOM updates, semantic UI elements, responsive `--grex-*` design tokens, and the split-screen `GrexPreviewBridge`. Server-side GRAB language features, Grisp HTTP/worker internals, and `grab mcp` live in `urbanspress/grab.in.the.making`.

@@ -13,7 +13,7 @@
 
 ### Non-Goals for `v0.2`
 - No interactive stateful widgets (`Form`, `Input`, `Select`, `Tabs`, `Accordion`, `Modal`, `Nav`) or keyed `grab.api.json` repeaters (those belong to `v0.3`).
-- No visual drag-and-drop editor UI (that belongs to **Grex Builder**).
+- No visual drag-and-drop editor UI (that belongs to **Grex Theme Builder**).
 - No raw `innerHTML` parsing or `eval()`/`new Function()` template evaluation.
 
 ---

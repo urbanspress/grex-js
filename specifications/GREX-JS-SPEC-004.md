@@ -12,7 +12,7 @@
 **Grex JS `v0.4` (leading directly into the `v1.0.0` SemVer stability freeze)** completes the core runtime by adding:
 1. A **Global Theme & Reusable Class Manager** (`createTheme`, `createClassManager` / `registerClass`) compiling cleanly to `/static/grex/`.
 2. **Built-In Accessibility Audit Helpers** (`auditAccessibility`, `auditDom`) enforcing WCAG AA contrast, `alt` text, form `<label>` associations, heading hierarchy, and keyboard focus indicators.
-3. A **Machine-Readable Element Catalog (`grex.elements.json`)** describing all 20 Grex JS elements for **Grex Builder**, **GrabLab CMS**, and **Groxy AI** (`grab mcp` + `GRAB-DESIGN-SYSTEM.md`).
+3. A **Machine-Readable Element Catalog (`grex.elements.json`)** describing all 20 Grex JS elements for **Grex Theme Builder**, **GrabLab CMS**, and **Groxy AI** (`grab mcp` + `GRAB-DESIGN-SYSTEM.md`).
 4. **The `v1.0.0` SemVer Stability Freeze & Production Release Gates.**
 
 ### Non-Goals
@@ -57,7 +57,7 @@ Zero-dependency validation helpers returning `{ ok: boolean, issues: Array<{ sev
 
 ## 4. Machine-Readable Element Catalog (`grex.elements.json`)
 
-`exportElementCatalog()` (and checked-in `grex.elements.json` at repository root) provides a deterministic JSON schema (`schemaVersion: "1.0.0"`) for **Grex Builder**, **GrabLab CMS**, and **Groxy AI** (`grab mcp`):
+`exportElementCatalog()` (and checked-in `grex.elements.json` at repository root) provides a deterministic JSON schema (`schemaVersion: "1.0.0"`) for **Grex Theme Builder**, **GrabLab CMS**, and **Groxy AI** (`grab mcp`):
 
 - **Covers all 20 Grex JS elements:**
   - *Layout (`5`):* `Section`, `Container`, `Grid`, `Stack`, `Card`

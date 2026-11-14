@@ -40,11 +40,13 @@ All `grex-js` rendering, previewing, and publishing workflows MUST respect these
 - **Automatic Pickup:** Whenever either agent starts via `use-antigravity` or `use-codex`, it must immediately read `AGENTS.md`, `GREX-EXPERT.md`, and `HANDOFF.md`, run the test suite to confirm a clean baseline, and begin the next pending task without unnecessary setup questions.
 
 ### Internal Antigravity Model Guidance
-- Before ending a turn or starting a new phase, advise the project owner which Antigravity model and effort level to select for the next step:
-  - Recommend **Gemini 3.8 Flash (High)** for straightforward element tests, documentation updates, and small single-module fixes.
-  - Recommend **Gemini 4 Argon (Medium)** for roadmap updates, feature guides, and specification refinements.
-  - Recommend **Gemini 4 Hydrogen (Medium/High)** or **Opus 5.5 (High)** for core reactive engine, DOM reconciliation, and security-critical escaping work.
-  - If an issue remains unresolved after 2 attempts on a Tier 1 model, trigger the **Tandem Handoff Protocol** and hand off to **OpenAI Codex**.
+- Before ending a turn or starting a new phase, advise the project owner which Antigravity model and effort level to select for the next step so AI Pro quota is used efficiently:
+  - **`Google Hydrogen (Medium)`:** Pre-implementation specifications (`*-SPEC-*.md`), documentation, governance updates, and single-module edits.
+  - **`Google Hydrogen (High)`:** Standard feature milestone implementations (`v0.4.0`, `v1.0.0` build & release).
+  - **`Orchestrator (Argon)`:** Second-opinion pre-`v1.0.0` security/DOM/contract audits, multi-repo cross-layer integrations, and complex refactors where Argon-level planning + automated delegation saves tokens.
+  - **`Google Hydrogen (Extra)`:** Reserved for autonomous AI engines (`Groxy AI`), multi-server orchestration (`Gashboard + Grabtaculous + grabman`), and stubborn cross-layer bugs.
+- **Mandatory Pause & Swap Prompt Rule:** Every active AI agent MUST pause at milestone boundaries or before high-risk cross-layer/pre-`v1.0.0` audits and explicitly tell the user when to switch to `Orchestrator (Argon)`, including a clear 1-sentence reason why `Orchestrator (Argon)` is recommended next.
+- If an issue remains unresolved after 2 attempts on `Google Hydrogen (Extra)` or `Orchestrator (Argon)`, trigger the **Tandem Handoff Protocol** and hand off to **OpenAI Codex**.
 
 ## Tiered Model Routing
 - **Tier 1 — Frontier Models (`Google Hydrogen`, `Gemini 4 Argon`, `GPT-6.1 Sol`, `Claude Opus/Sonnet`):**

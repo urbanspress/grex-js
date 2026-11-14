@@ -3,7 +3,7 @@
 **Grex JS** is the lightweight reactive frontend runtime and zero-wrapper-div native UI element library powering **Grex Theme Builder**, **GrabLab CMS**, and **Groxy AI** on top of **GRAB** and **Grisp**.
 
 ## Architecture & Scope
-- **Frontend Layer Only:** `grex-js` owns client-side reactive signals, fine-grained DOM updates, semantic UI elements, responsive `--grex-*` design tokens, and the split-screen `GrexPreviewBridge`. Server-side GRAB language features, Grisp HTTP/worker internals, and `grab mcp` live in `urbanspress/grab.in.the.making`.
+- **Frontend Layer Only:** `grex-js` owns client-side reactive signals, fine-grained DOM updates, semantic UI elements, responsive `--grex-*` design tokens, and the split-screen `GrexPreviewBridge`. Server-side GRAB language features, Grisp HTTP/worker internals, and `grab mcp` live in `urbanspress/grab.in.progress` / `urbanspress/grab.stable`.
 - **Zero Wrapper-Div Bloat:** Every Grex element renders directly to its clean, semantic HTML5 tag (`<section>`, `<header>`, `<nav>`, `<article>`, `<button>`, etc.) without extra wrapper `<div>` layers.
 - **Strict CSP & XSS Safety (`ADR-014`, `ADR-017`):** Never use `eval()`, `new Function()`, or unsafe `innerHTML`. Bind text via `textContent`, block `javascript:`/`data:` URLs, forbid inline `on*` handlers, and validate `postMessage` origins in `GrexPreviewBridge`.
 - **Exact GRAB Value Integrity (`ADR-025c`):** Never coerce GRAB base-10 `GrabInteger` / `GrabDecimal` wire strings (e.g., `"19.95"`) into imprecise IEEE-754 floating-point numbers when rendering or formatting values.
@@ -27,9 +27,12 @@ All `grex-js` rendering, previewing, and publishing workflows MUST respect these
 - **Pre-Implementation Specification Gate:** Never write runtime implementation code for a new milestone until its specification in `specifications/` is reviewed and explicitly approved by the project owner.
 - **Mandatory Test Completion Gate:** NEVER mark an implementation task complete or ask for release approval until automated unit, DOM, security, and integration tests covering the new feature or bug fix pass 100%.
 
-## Release Protection & Plain-English Release Assets
-- **Milestone Release Gate:** Never tag or publish a release until the milestone is 100% `Complete` in `docs/ROADMAP.md`, all automated unit/DOM/security/integration tests pass 100%, and `HANDOFF.md` records no pending milestone tasks.
-- **Plain-English Walkthrough PDF & Release Assets:** Every milestone release promotion (`v0.1.0`, `v0.2.0`, ..., `v1.0.0`) MUST generate a plain-English walkthrough PDF (`docs/releases/pdf/GREX-JS-<tag>-Guide.pdf`) alongside the clean browser-ready static runtime bundle (`grex-js-<tag>.min.js` / `grex-tokens-<tag>.css` as applicable) and attach them to the **Assets** section of the GitHub Release (`gh release upload --clobber --repo urbanspress/grex-js`).
+## Two-Repository Workflow & Release Protection
+- **Repository Roles:**
+  - `origin` (`https://github.com/urbanspress/grex-js.in.progress.git`): Active development repository for ongoing work, specifications, and in-progress milestone commits.
+  - `stable` (`https://github.com/urbanspress/grex-js.stable.git`): Production release repository for 100% verified milestone releases only.
+- **Strict `stable` Protection:** All AI agents and models MUST push work-in-progress commits, drafts, and specs ONLY to `origin` (`urbanspress/grex-js.in.progress`). Pushing to `stable` (`urbanspress/grex-js.stable`) is strictly forbidden unless the milestone is 100% `Complete` in `docs/ROADMAP.md`, all automated unit/DOM/security/integration tests pass 100%, and `HANDOFF.md` records no pending milestone tasks.
+- **Synchronized Releases & Assets:** Whenever a completed milestone is promoted to `stable`, push `main` and annotated version tags in ascending chronological order to both `origin` and `stable`, generate the plain-English walkthrough PDF (`docs/releases/pdf/GREX-JS-<tag>-Guide.pdf`) alongside the clean browser-ready static runtime bundle (`grex-js-<tag>.min.js` / `grex-tokens-<tag>.css` as applicable), and publish/attach matching GitHub Releases and assets to **both** repositories (`urbanspress/grex-js.in.progress` and `urbanspress/grex-js.stable`).
 
 ## Tandem Handoff Protocol
 - **Google Antigravity -> OpenAI Codex:** If Google Antigravity fails to resolve an issue or pass tests after 2 attempts, or encounters complex spec/architecture work, it must stop editing and revert only the specific files it edited during that failed attempt (stopping to ask the owner if pre-existing uncommitted work would be affected), log what it tried in `HANDOFF.md`, update `Current Owner: OpenAI Codex`, and say: `"Ready to hand off to Codex. Type use-codex to continue."`

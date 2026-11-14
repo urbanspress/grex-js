@@ -4,12 +4,12 @@
 
 ## How Grex JS Fits Into the GRAB Ecosystem
 
-1. **GRAB + Grisp** (`urbanspress/grab.in.progress` / `urbanspress/grab.stable`) — Core programming language, multi-worker persistent server, and `grab mcp` protocol.
-2. **Grex JS** (`urbanspress/grex-js.in.progress` / `urbanspress/grex-js.stable`) — Fine-grained reactive frontend signals, zero-wrapper-div semantic HTML elements, responsive CSS design tokens, and the split-screen preview bridge.
-3. **GrabLab CMS** (`urbanspress/grablab-cms.in.progress` / `urbanspress/grablab-cms.stable`) — Savvy CMS with pretty permalinks, content types, and publishing workflows.
-4. **Grex Theme Builder** (`urbanspress/grex-builder.in.progress` / `urbanspress/grex-builder.stable`) — Responsive-first visual page and conditional theme builder powered by Grex JS.
-5. **Groxy AI** *(planned: `urbanspress/groxy-ai.in.progress` / `urbanspress/groxy-ai.stable`)* — Autonomous design & CMS agent using `grab mcp` and Grex JS elements.
-6. **Gashboard + Grabtaculous** *(planned: `urbanspress/gashboard.in.progress` / `urbanspress/gashboard.stable`)* — Discreet desktop VPS control panel and 1-click app installer.
+1. **GRAB + Grisp** (`urbanspress/grab.progress` / `urbanspress/grab.stable`) — Core programming language, multi-worker persistent server, and `grab mcp` protocol.
+2. **Grex JS** (`urbanspress/grex-js.progress` / `urbanspress/grex-js.stable`) — Fine-grained reactive frontend signals, zero-wrapper-div semantic HTML elements, responsive CSS design tokens, and the split-screen preview bridge.
+3. **GrabLab CMS** (`urbanspress/grablab-cms.progress` / `urbanspress/grablab-cms.stable`) — Savvy CMS with pretty permalinks, content types, and publishing workflows.
+4. **Grex Theme Builder** (`urbanspress/grex-builder.progress` / `urbanspress/grex-builder.stable`) — Responsive-first visual page and conditional theme builder powered by Grex JS.
+5. **Groxy AI** *(planned: `urbanspress/groxy-ai.progress` / `urbanspress/groxy-ai.stable`)* — Autonomous design & CMS agent using `grab mcp` and Grex JS elements.
+6. **Gashboard + Grabtaculous** *(planned: `urbanspress/gashboard.progress` / `urbanspress/gashboard.stable`)* — Discreet desktop VPS control panel and 1-click app installer.
 
 ## Design Principles
 

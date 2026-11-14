@@ -1,6 +1,6 @@
 # Grex JS Roadmap
 
-**Repositories:** `urbanspress/grex-js.in.progress` (active development) / `urbanspress/grex-js.stable` (verified releases)  
+**Repositories:** `urbanspress/grex-js.progress` (active development) / `urbanspress/grex-js.stable` (verified releases)  
 **Grex JS** is the lightweight reactive frontend runtime and zero-wrapper-div native UI element library powering **Grex Theme Builder**, **GrabLab CMS**, and **Groxy AI** on top of **GRAB** and **Grisp**.
 
 ---

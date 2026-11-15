@@ -34,6 +34,31 @@ All `grex-js` rendering, previewing, and publishing workflows MUST respect these
 - **Strict `stable` Protection:** All AI agents and models MUST push work-in-progress commits, drafts, and specs ONLY to `origin` (`urbanspress/grex-js.progress`). Pushing to `stable` (`urbanspress/grex-js.stable`) is strictly forbidden unless the milestone is 100% `Complete` in `docs/ROADMAP.md`, all automated unit/DOM/security/integration tests pass 100%, and `HANDOFF.md` records no pending milestone tasks.
 - **Synchronized Releases & Assets:** Whenever a completed milestone is promoted to `stable`, push `main` and annotated version tags in ascending chronological order to both `origin` and `stable`, generate the plain-English walkthrough PDF (`docs/releases/pdf/GREX-JS-<tag>-Guide.pdf`) alongside the clean browser-ready static runtime bundle (`grex-js-<tag>.min.js` / `grex-tokens-<tag>.css` as applicable), and publish/attach matching GitHub Releases and assets to **both** repositories (`urbanspress/grex-js.progress` and `urbanspress/grex-js.stable`).
 
+### SemVer (MAJOR.MINOR.PATCH) & Release Compatibility Matrix Standard
+1. **Strict `MAJOR.MINOR.PATCH` Semantic Versioning (`ADR-027c`):**
+   - **`1.0.x` (`PATCH`):** Strictly for non-breaking bug fixes, security hardening, documentation polish, and cross-layer audit patches (`100%` drop-in compatible).
+   - **`1.x.0` (`MINOR`):** For backwards-compatible new features, additive standard library/runtime capabilities, or new MCP/CMS/Builder endpoints.
+   - **`2.0.0` (`MAJOR`):** Reserved for breaking architectural or contract changes—**never used without explicit project-owner approval (`ADR-027c`)**.
+2. **Mandatory Release Compatibility Badge & Matrix Block:**
+   - Every GitHub Release (`v1.0.1`, `v1.1.0`, etc.) across both `.progress` and `.stable` repositories MUST display at the top of its release notes:
+     1. A **Release Type & Affected Layers** summary callout (`PATCH (v1.0.x)` vs. `MINOR (v1.x.0)`, which layer(s) changed, and whether any neighboring layer requires an upgrade).
+     2. An **Ecosystem Compatibility Matrix** Markdown table covering all five layers:
+
+````markdown
+### Release Type & Affected Layers
+- **Release Version & SemVer Tier:** `v<X.Y.Z>` (`PATCH 1.0.x — Non-Breaking Bug/Security/Audit Patch` | `MINOR 1.x.0 — Backwards-Compatible Feature Release`)
+- **Affected Layer(s):** `<Layer Name>` (`urbanspress/<repo>`)
+- **Neighboring Layer Upgrade Required?** `No — 100% drop-in compatible` (or explicit version requirement if `Yes`)
+
+| Ecosystem Layer | Repository | Required Version Range | Touched in This Release? | Neighbor Upgrade Required? |
+|---|---|---|---|---|
+| **Core Language, Bytecode VM & Grisp Server** | `urbanspress/grab` | `>= v1.1.0 (< v2.0.0)` | `Yes` / `No` | `No` |
+| **Reactive Frontend Runtime & 20-Element Library** | `urbanspress/grex-js` | `>= v1.0.0 (< v2.0.0)` | `Yes` / `No` | `No` |
+| **Flagship Zero-Plugin CMS** | `urbanspress/grablab-cms` | `>= v1.0.1 (< v2.0.0)` | `Yes` / `No` | `No` |
+| **Exclusive `mode: "visual"` Theme & Studio** | `urbanspress/grex-builder` | `>= v1.0.0 (< v2.0.0)` | `Yes` / `No` | `No` |
+| **Autonomous Design, Content & SEO Agent** | `urbanspress/groxy-ai` | `>= v0.1.0` | `Yes` / `No` | `No` |
+````
+
 ## Tandem Handoff Protocol
 - **Google Antigravity -> OpenAI Codex:** If Google Antigravity fails to resolve an issue or pass tests after 2 attempts, or encounters complex spec/architecture work, it must stop editing and revert only the specific files it edited during that failed attempt (stopping to ask the owner if pre-existing uncommitted work would be affected), log what it tried in `HANDOFF.md`, update `Current Owner: OpenAI Codex`, and say: `"Ready to hand off to Codex. Type use-codex to continue."`
 - **OpenAI Codex -> Google Antigravity:** When Codex finishes a task, it must update `HANDOFF.md`, set `Current Owner: Google Antigravity`, and say: `"Core task complete—ready to hand off to Google Antigravity. Type use-antigravity to continue."`

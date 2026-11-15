@@ -59,6 +59,13 @@ All `grex-js` rendering, previewing, and publishing workflows MUST respect these
 | **Autonomous Design, Content & SEO Agent** | `urbanspress/groxy-ai` | `>= v0.1.0` | `Yes` / `No` | `No` |
 ````
 
+### Mandatory Milestone Snapshot Rule
+- **Ecosystem Snapshot Sync:** At the end of every milestone (before closing the milestone or pushing release promotions), every agent MUST run:
+  ```powershell
+  powershell -ExecutionPolicy Bypass -File C:\Development\GRAB\scripts\sync-notebook-sources.ps1
+  ```
+  so `C:\Development\ECOSYSTEM-SNAPSHOT.md` always reflects the latest Git branches, commits, tags, `AGENTS.md`, `*-EXPERT.md`, `HANDOFF.md`, `docs\ROADMAP.md`, and `specifications\*.md` across all discovered `C:\Development\*` repositories.
+
 ## Tandem Handoff Protocol
 - **Google Antigravity -> OpenAI Codex:** If Google Antigravity fails to resolve an issue or pass tests after 2 attempts, or encounters complex spec/architecture work, it must stop editing and revert only the specific files it edited during that failed attempt (stopping to ask the owner if pre-existing uncommitted work would be affected), log what it tried in `HANDOFF.md`, update `Current Owner: OpenAI Codex`, and say: `"Ready to hand off to Codex. Type use-codex to continue."`
 - **OpenAI Codex -> Google Antigravity:** When Codex finishes a task, it must update `HANDOFF.md`, set `Current Owner: Google Antigravity`, and say: `"Core task complete—ready to hand off to Google Antigravity. Type use-antigravity to continue."`
